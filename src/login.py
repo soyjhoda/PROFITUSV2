@@ -5,27 +5,35 @@ from customtkinter import CTkImage, CTkLabel
 import os
 import hashlib
 
-class LoginWindow(ctk.CTkToplevel):
+
+class LoginFrame(ctk.CTkFrame):
     def __init__(self, parent, user_management, on_login_success):
         super().__init__(parent)
         self.parent = parent
         self.user_management = user_management
         self.on_login_success = on_login_success
 
-        self.title("Ingreso al Sistema")
-        self.geometry("600x600")
-        self.resizable(False, False)
+        self.pack(fill='both', expand=True)  # Ocupa toda ventana padre
 
-        self.transient(parent)
-        self.grab_set()
+        # Frame pequeño centrado para formulario
+        self.form_frame = ctk.CTkFrame(self, width=400, height=400, corner_radius=15)
+        self.form_frame.place(relx=0.5, rely=0.5, anchor="center")
 
         self._create_widgets()
         self._place_focus()
 
-    def _create_widgets(self):
-        logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "logo-app", "logo.png")
+        # Etiqueta fija con crédito abajo centrada
+        self.credit_label = ctk.CTkLabel(self.parent,
+                                        text="ProfitUs: Creado por Jhoda Studios.",
+                                        font=ctk.CTkFont(size=14))
+        self.credit_label.place(relx=0.5, rely=0.95, anchor="center")
 
-        # Guarda logo en atributo del padre para evitar garbage collection
+    def _create_widgets(self):
+        logo_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "..", "assets", "logo-app", "logo.png"
+        )
+
         if hasattr(self.parent, 'ctk_img'):
             self.parent.ctk_img = self.parent.ctk_img
         else:
@@ -36,26 +44,24 @@ class LoginWindow(ctk.CTkToplevel):
                 self.parent.ctk_img = None
 
         if self.parent.ctk_img:
-            self.logo_label = CTkLabel(self, image=self.parent.ctk_img, text="")
+            self.logo_label = CTkLabel(self.form_frame, image=self.parent.ctk_img, text="")
             self.logo_label.pack(pady=20)
         else:
-            self.logo_label = CTkLabel(self, text="Bienvenido", font=ctk.CTkFont(size=28, weight="bold"), pady=20)
+            self.logo_label = CTkLabel(self.form_frame, text="Bienvenido",
+                                    font=ctk.CTkFont(size=28, weight="bold"), pady=20)
             self.logo_label.pack()
 
-        self.frame = ctk.CTkFrame(self)
-        self.frame.pack(padx=40, pady=20, fill="both", expand=True)
+        self.username_entry = ctk.CTkEntry(self.form_frame, placeholder_text="Nombre de usuario", width=320)
+        self.username_entry.pack(pady=(20, 12), padx=20)
 
-        self.username_entry = ctk.CTkEntry(self.frame, placeholder_text="Nombre de usuario")
-        self.username_entry.pack(pady=(40, 12), padx=20, fill="x")
+        self.password_entry = ctk.CTkEntry(self.form_frame, placeholder_text="Contraseña", show="*", width=320)
+        self.password_entry.pack(pady=12, padx=20)
 
-        self.password_entry = ctk.CTkEntry(self.frame, placeholder_text="Contraseña", show="*")
-        self.password_entry.pack(pady=12, padx=20, fill="x")
-
-        self.remember_me = ctk.CTkCheckBox(self.frame, text="Recordarme")
+        self.remember_me = ctk.CTkCheckBox(self.form_frame, text="Recordarme")
         self.remember_me.pack(pady=12)
 
-        self.login_button = ctk.CTkButton(self.frame, text="Ingresar", command=self._attempt_login)
-        self.login_button.pack(pady=30, padx=20, fill="x")
+        self.login_button = ctk.CTkButton(self.form_frame, text="Ingresar", command=self._attempt_login, width=320)
+        self.login_button.pack(pady=30, padx=20)
 
     def _place_focus(self):
         self.username_entry.focus_set()
@@ -73,7 +79,6 @@ class LoginWindow(ctk.CTkToplevel):
 
         if user and user["password"] == password_hash:
             messagebox.showinfo("Éxito", f"Bienvenido, {user['nombre_completo']}!")
-            self.destroy()
             self.on_login_success(user)
         else:
             messagebox.showerror("Falló ingreso", "Usuario o contraseña incorrectos.")

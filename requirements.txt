@@ -1,0 +1,22 @@
+customtkinter==6.4.4
+pillow==11.3.0
+
+
+Explicación:
+customtkinter: Para toda la interfaz y widgets modernos.
+
+pillow: Para manipulación y carga de imágenes (logo).
+
+No incluimos sqlite3 porque viene integrado en Python.
+----------------------------------------------------------
+Cómo usar el archivo requirements.txt
+Guarda este texto en un archivo llamado requirements.txt en la raíz de tu proyecto (donde está README.md).
+
+Al crear un entorno virtual nuevo o en otra máquina, ejecuta:
+
+pip install -r requirements.txt
+
+Esto instalará las versiones exactas de las librerías necesarias para evitar incompatibilidades.
+
+-----------------------------------------------------------
+
