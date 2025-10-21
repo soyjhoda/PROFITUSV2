@@ -11,7 +11,7 @@ LOGO_PROFITUS_PATH = r"C:\Proyectos\ERP_LITE_PYME_V2\assets\logo-app\logo.png"
 
 
 class Dashboard(ctk.CTkFrame):
-    def __init__(self, master, user_data, logo_cliente_path=""):
+    def __init__(self, master, user_data, logo_cliente_path="", on_logout=None):
         super().__init__(master)
         self.pack(fill='both', expand=True)
 
@@ -26,9 +26,16 @@ class Dashboard(ctk.CTkFrame):
         self.main_panel = None
         self.sidebar = None
 
+        self.on_logout = on_logout  # Callback para cerrar sesión
+
         self._create_topbar()
         self._create_sidebar()
         self._create_main_panel()
+
+    def cerrar_sesion(self):
+        if self.on_logout:
+            self.on_logout()
+        self.destroy()
 
     def _cargar_nombre_negocio(self):
         if os.path.exists(NOMBRE_NEGOCIO_PATH):
@@ -128,33 +135,33 @@ class Dashboard(ctk.CTkFrame):
 
         self._activate_menu("HOME")
 
-        account_text_y = y_start + len(menus) * spacing + 110  # aumento para bajar más
+        account_text_y = y_start + len(menus) * spacing + 110
         ctk.CTkLabel(self.sidebar, text="ACCOUNT DETAILS", font=ctk.CTkFont(size=13, underline=True),
                      text_color="#4F5D7A", fg_color="#000000").place(x=29, y=account_text_y)
 
         acciones = [("Perfil", "👤"), ("Configuración", "⚙️"), ("Cambiar logo", "🖼️"), ("Cerrar Sesión", "🔒")]
-        y_acc = account_text_y + 50  # mayor espacio antes que los botones
+        y_acc = account_text_y + 50
         self.acciones_buttons = []
         for name, icon in acciones:
             b = ctk.CTkButton(self.sidebar, corner_radius=7, height=30, width=142,
                               text=f"{icon} {name}",
                               font=ctk.CTkFont(size=14),
-                              fg_color="#4113AE",  # fondo morado llamativo similar a los botones principales
+                              fg_color="#4113AE",
                               hover_color="#511ABE",
                               bg_color="#231B44")
-            b.place(x=20, y=y_acc)
+            if name == "Cerrar Sesión":
+                b.configure(command=self.cerrar_sesion)
             if name == "Cambiar logo":
                 b.configure(command=self.seleccionar_logo)
+            b.place(x=20, y=y_acc)
             y_acc += 39
             self.acciones_buttons.append(b)
-
 
         if os.path.exists(LOGO_PROFITUS_PATH):
             profitus_img = Image.open(LOGO_PROFITUS_PATH).resize((150, 150))
             self.profitus_logo = ctk.CTkImage(profitus_img, size=(150, 150))
             logo_label = ctk.CTkLabel(self.sidebar, image=self.profitus_logo, text="", fg_color="#000000")
             logo_label.place(relx=0.5, rely=1.0, anchor="s", y=-120)
-
 
     def _toggle_sidebar(self):
         new_width = 52 if self.menu_expanded else 190

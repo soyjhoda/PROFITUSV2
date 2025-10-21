@@ -32,9 +32,22 @@ class ERPApp(ctk.CTk):
                 os.path.dirname(os.path.abspath(__file__)),
                 "..", "assets", "logo-cliente", "logo.png"
             )
-            self.dashboard_frame = Dashboard(self, user_data=user, logo_cliente_path=ruta_logo_cliente)
+            self.dashboard_frame = Dashboard(
+                self,
+                user_data=user,
+                logo_cliente_path=ruta_logo_cliente,
+                on_logout=self.handle_logout  # Pasar callback para logout
+            )
 
         self.dashboard_frame.pack(fill='both', expand=True)
+
+    def handle_logout(self):
+        if self.dashboard_frame:
+            self.dashboard_frame.pack_forget()
+            self.dashboard_frame.destroy()
+            self.dashboard_frame = None
+
+        self.login_frame.pack(fill='both', expand=True)
 
 
 if __name__ == "__main__":
