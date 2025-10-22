@@ -1,3 +1,5 @@
+# dashboard.py
+
 import customtkinter as ctk
 from PIL import Image
 import os
@@ -5,9 +7,17 @@ import datetime
 from tkinter import filedialog
 import shutil
 from .config_page import ConfigPage
+from src.ui.theme import (
+    BACKGROUND_COLOR, FONT_BOLD_MEDIUM, SIDEBAR_COLOR, SIDEBAR_BUTTON_DEFAULT, SIDEBAR_BUTTON_HOVER,
+    TOPBAR_COLOR, TEXT_COLOR_PRIMARY, TEXT_COLOR_SECONDARY,
+    BUTTON_STYLE_DEFAULT, LABEL_STYLE_HEADER, LABEL_STYLE_SUBHEADER,
+    FONT_BOLD_SMALL, FONT_REGULAR_MEDIUM, FONT_REGULAR_SMALL,
+    LOGO_PROFITUS_PATH,
+    DATE_FORMAT, TIME_FORMAT
+)
+
 
 NOMBRE_NEGOCIO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "logo-cliente", "nombre_negocio.txt")
-LOGO_PROFITUS_PATH = r"C:\Proyectos\ERP_LITE_PYME_V2\assets\logo-app\logo.png"
 
 
 class Dashboard(ctk.CTkFrame):
@@ -20,7 +30,7 @@ class Dashboard(ctk.CTkFrame):
         self.theme_mode = "dark"
         self.menu_expanded = True
         self.nombre_negocio = self._cargar_nombre_negocio()
-        self.configure(fg_color="#1b1440")
+        self.configure(fg_color=BACKGROUND_COLOR)
 
         self.topbar_frame = None
         self.sidebar = None
@@ -40,11 +50,8 @@ class Dashboard(ctk.CTkFrame):
     def mostrar_configuracion(self):
         if self.main_panel is not None:
             self.main_panel.destroy()
-        # Al abrir configuración, pásale el callback para regresar al panel principal
         self.main_panel = ConfigPage(self, user_management=None, on_close=self._create_main_panel)
-        # Ubicar main panel a la derecha de sidebar
         self.main_panel.place(x=190, y=55, relwidth=1.0, relheight=1.0, anchor='nw')
-        # Ajustar tamaño sin tapar sidebar
         self.main_panel.place_configure(relwidth=1.0, relheight=1.0)
 
     def _cargar_nombre_negocio(self):
@@ -72,7 +79,7 @@ class Dashboard(ctk.CTkFrame):
     def _create_topbar(self):
         if self.topbar_frame is not None:
             self.topbar_frame.destroy()
-        self.topbar_frame = ctk.CTkFrame(self, height=55, fg_color="#000000")
+        self.topbar_frame = ctk.CTkFrame(self, height=55, fg_color=TOPBAR_COLOR)
         self.topbar_frame.place(x=0, y=0, relwidth=1.0)
 
         bar = self.topbar_frame
@@ -80,35 +87,79 @@ class Dashboard(ctk.CTkFrame):
         if self.logo_cliente_path and os.path.exists(self.logo_cliente_path):
             img_logo = Image.open(self.logo_cliente_path).resize((38, 38))
             self.logo_topbar = ctk.CTkImage(img_logo, size=(38, 38))
-            logo_label = ctk.CTkLabel(bar, image=self.logo_topbar, text="", fg_color="#000000")
+            logo_label = ctk.CTkLabel(bar, image=self.logo_topbar, text="", fg_color=TOPBAR_COLOR)
             logo_label.pack(side="left", padx=(10, 4), pady=8)
         else:
             logo_label = None
 
-        nombre_frame = ctk.CTkFrame(bar, fg_color="#000000")
+        nombre_frame = ctk.CTkFrame(bar, fg_color=TOPBAR_COLOR)
         nombre_frame.pack(side="left", padx=(0, 20), pady=2)
-        self.label_nombre_negocio = ctk.CTkLabel(nombre_frame, text=self.nombre_negocio,
-                                                 font=ctk.CTkFont(size=19, weight="bold"), fg_color="#000000")
+
+        self.label_nombre_negocio = ctk.CTkLabel(
+            nombre_frame,
+            text=self.nombre_negocio,
+            **LABEL_STYLE_HEADER,
+            fg_color=TOPBAR_COLOR
+        )
         self.label_nombre_negocio.pack(side="left")
         self.label_nombre_negocio.bind("<Double-1>", self._edit_nombre_negocio)
-        self.entry_nombre_negocio = ctk.CTkEntry(nombre_frame, font=ctk.CTkFont(size=16), width=180)
-        self.btn_guardar_nombre = ctk.CTkButton(nombre_frame, text="Guardar", width=68,
-                                                font=ctk.CTkFont(size=14), command=self._guardar_nombre_negocio)
-        mode_btn = ctk.CTkButton(bar, text="🌗", width=35, height=35, fg_color="#000000", command=self._toggle_mode)
+
+        self.entry_nombre_negocio = ctk.CTkEntry(
+            nombre_frame,
+            font=FONT_REGULAR_MEDIUM,
+            width=180
+        )
+        self.btn_guardar_nombre = ctk.CTkButton(
+            nombre_frame,
+            text="Guardar",
+            width=68,
+            command=self._guardar_nombre_negocio,
+            **BUTTON_STYLE_DEFAULT
+        )
+        mode_btn = ctk.CTkButton(
+            bar,
+            text="🌗",
+            width=35,
+            height=35,
+            fg_color=TOPBAR_COLOR,
+            command=self._toggle_mode
+        )
         mode_btn.pack(side="right", padx=9, pady=6)
+
         now = datetime.datetime.now()
-        fecha_label = ctk.CTkLabel(bar, text=now.strftime("%d %b, %Y"), font=ctk.CTkFont(size=14), fg_color="#000000")
+        fecha_label = ctk.CTkLabel(
+            bar,
+            text=now.strftime(DATE_FORMAT),
+            font=FONT_REGULAR_MEDIUM,
+            fg_color=TOPBAR_COLOR
+        )
         fecha_label.pack(side="right", padx=15)
-        hora_label = ctk.CTkLabel(bar, text=now.strftime("%I:%M %p"), font=ctk.CTkFont(size=14), fg_color="#000000")
+
+        hora_label = ctk.CTkLabel(
+            bar,
+            text=now.strftime(TIME_FORMAT),
+            font=FONT_REGULAR_MEDIUM,
+            fg_color=TOPBAR_COLOR
+        )
         hora_label.pack(side="right")
 
         try:
             user_name = self.user_data["nombre_completo"]
         except (KeyError, TypeError):
             user_name = "Usuario"
-        avatar_label = ctk.CTkLabel(bar, text="👤", font=ctk.CTkFont(size=19), fg_color="#000000")
+        avatar_label = ctk.CTkLabel(
+            bar,
+            text="👤",
+            font=FONT_BOLD_SMALL,
+            fg_color=TOPBAR_COLOR
+        )
         avatar_label.pack(side="right", padx=(22, 2))
-        user_label = ctk.CTkLabel(bar, text=f"{user_name}", font=ctk.CTkFont(size=13), fg_color="#000000")
+        user_label = ctk.CTkLabel(
+            bar,
+            text=f"{user_name}",
+            font=FONT_REGULAR_MEDIUM,
+            fg_color=TOPBAR_COLOR
+        )
         user_label.pack(side="right", padx=(0, 7))
 
     def _toggle_mode(self):
@@ -118,47 +169,69 @@ class Dashboard(ctk.CTkFrame):
     def _create_sidebar(self):
         if self.sidebar is not None:
             self.sidebar.destroy()
-        self.sidebar = ctk.CTkFrame(self, fg_color="#000000", width=190)
+        self.sidebar = ctk.CTkFrame(self, fg_color=SIDEBAR_COLOR, width=190)
         self.sidebar.place(x=0, y=55, relheight=1.0, anchor="nw")
 
-        self.menu_toggle = ctk.CTkButton(self.sidebar, text="≡", width=36, height=36, fg_color="#000000",
-                                         command=self._toggle_sidebar)
+        self.menu_toggle = ctk.CTkButton(
+            self.sidebar,
+            text="≡",
+            width=36,
+            height=36,
+            fg_color=SIDEBAR_COLOR,
+            command=self._toggle_sidebar
+        )
         self.menu_toggle.place(x=142, y=12)
 
         self.menu_buttons = []
         menus = [("HOME", "🏠"), ("POS", "🛒"), ("INVENTARIO", "📦"),
-                 ("COMPRAS", "🧾"), ("GESTION", "📋")]
+                ("COMPRAS", "🧾"), ("GESTION", "📋")]
 
         y_start = 58
         spacing = 54
 
         for i, (txt, icon) in enumerate(menus):
-            btn = ctk.CTkButton(self.sidebar, corner_radius=8, height=42, width=142,
-                                text=f"{icon} {txt}",
-                                font=ctk.CTkFont(size=16),
-                                fg_color="#000000",
-                                hover_color="#222222",
-                                bg_color="#000000",
-                                command=lambda t=txt: self._activate_menu(t))
+            btn = ctk.CTkButton(
+                self.sidebar,
+                corner_radius=8,
+                height=42,
+                width=142,
+                text=f"{icon} {txt}",
+                font=FONT_REGULAR_MEDIUM,
+                fg_color=SIDEBAR_BUTTON_DEFAULT,
+                hover_color=SIDEBAR_BUTTON_HOVER,
+                bg_color=SIDEBAR_COLOR,
+                command=lambda t=txt: self._activate_menu(t)
+            )
             btn.place(x=20, y=y_start + i * spacing)
             self.menu_buttons.append(btn)
 
         self._activate_menu("HOME")
 
         account_text_y = y_start + len(menus) * spacing + 110
-        ctk.CTkLabel(self.sidebar, text="ACCOUNT DETAILS", font=ctk.CTkFont(size=13, underline=True),
-                     text_color="#4F5D7A", fg_color="#000000").place(x=29, y=account_text_y)
+        ctk.CTkLabel(
+            self.sidebar,
+            text="ACCOUNT DETAILS",
+            font=FONT_REGULAR_SMALL,
+            fg_color=SIDEBAR_COLOR,
+            text_color="#4F5D7A",
+            underline=True
+        ).place(x=29, y=account_text_y)
 
         acciones = [("Perfil", "👤"), ("Configuración", "⚙️"), ("Cambiar logo", "🖼️"), ("Cerrar Sesión", "🔒")]
         y_acc = account_text_y + 50
         self.acciones_buttons = []
         for name, icon in acciones:
-            b = ctk.CTkButton(self.sidebar, corner_radius=7, height=30, width=142,
-                              text=f"{icon} {name}",
-                              font=ctk.CTkFont(size=14),
-                              fg_color="#4113AE",
-                              hover_color="#511ABE",
-                              bg_color="#231B44")
+            b = ctk.CTkButton(
+                self.sidebar,
+                corner_radius=7,
+                height=30,
+                width=142,
+                text=f"{icon} {name}",
+                font=FONT_REGULAR_MEDIUM,
+                fg_color=BUTTON_STYLE_DEFAULT["fg_color"],
+                hover_color=BUTTON_STYLE_DEFAULT["hover_color"],
+                bg_color=SIDEBAR_BUTTON_DEFAULT,
+            )
             if name == "Cerrar Sesión":
                 b.configure(command=self.cerrar_sesion)
             if name == "Cambiar logo":
@@ -172,7 +245,7 @@ class Dashboard(ctk.CTkFrame):
         if os.path.exists(LOGO_PROFITUS_PATH):
             profitus_img = Image.open(LOGO_PROFITUS_PATH).resize((150, 150))
             self.profitus_logo = ctk.CTkImage(profitus_img, size=(150, 150))
-            logo_label = ctk.CTkLabel(self.sidebar, image=self.profitus_logo, text="", fg_color="#000000")
+            logo_label = ctk.CTkLabel(self.sidebar, image=self.profitus_logo, text="", fg_color=SIDEBAR_COLOR)
             logo_label.place(relx=0.5, rely=1.0, anchor="s", y=-120)
 
     def _toggle_sidebar(self):
@@ -181,7 +254,7 @@ class Dashboard(ctk.CTkFrame):
         self.sidebar.configure(width=new_width)
         for btn in self.menu_buttons:
             btn.configure(width=(16 if not self.menu_expanded else 142))
-            btn.configure(font=ctk.CTkFont(size=(14 if not self.menu_expanded else 16)))
+            btn.configure(font=FONT_REGULAR_MEDIUM if self.menu_expanded else FONT_REGULAR_SMALL)
             if not self.menu_expanded:
                 btn.configure(text=btn.cget('text').split(' ')[0])
             else:
@@ -194,21 +267,20 @@ class Dashboard(ctk.CTkFrame):
         self.menu_toggle.place(x=(5 if not self.menu_expanded else 142), y=12)
 
     def _activate_menu(self, menu_name):
-        # Cuando selecciones otro menú, cerrar configuración si está abierta
         if self.main_panel is not None and isinstance(self.main_panel, ConfigPage):
             self.main_panel.destroy()
             self._create_main_panel()
         for btn in self.menu_buttons:
             if menu_name in btn.cget('text'):
-                btn.configure(fg_color="#4113AE")
+                btn.configure(fg_color=SIDEBAR_BUTTON_HOVER)
             else:
-                btn.configure(fg_color="#231B44")
+                btn.configure(fg_color=SIDEBAR_BUTTON_DEFAULT)
 
     def _create_main_panel(self):
         if hasattr(self, "main_panel") and self.main_panel is not None:
             self.main_panel.destroy()
 
-        self.main_panel = ctk.CTkFrame(self, fg_color="#1b1440")
+        self.main_panel = ctk.CTkFrame(self, fg_color=BACKGROUND_COLOR)
         self.main_panel.place(x=190, y=55, relwidth=1.0, relheight=1.0, anchor="nw")
 
         try:
@@ -220,22 +292,34 @@ class Dashboard(ctk.CTkFrame):
         except (KeyError, TypeError):
             rol = "Sin rol"
 
-        welcome = ctk.CTkLabel(self.main_panel, text="Bienvenido", font=ctk.CTkFont(size=30, weight="bold"),
-                                text_color="white", fg_color="#1b1440")
+        welcome = ctk.CTkLabel(
+            self.main_panel,
+            text="Bienvenido",
+            **LABEL_STYLE_HEADER,
+            fg_color=BACKGROUND_COLOR
+        )
         welcome.pack(pady=(35, 8))
-        rol_label = ctk.CTkLabel(self.main_panel, text=f"{nombre}: Rol {rol}.", font=ctk.CTkFont(size=22),
-                                 text_color="#81E821", fg_color="#1b1440")
+        rol_label = ctk.CTkLabel(
+            self.main_panel,
+            text=f"{nombre}: Rol {rol}.",
+            **LABEL_STYLE_SUBHEADER,
+            fg_color=BACKGROUND_COLOR
+        )
         rol_label.pack(pady=(0, 22))
 
         if self.logo_cliente_path and os.path.exists(self.logo_cliente_path):
             img_c = Image.open(self.logo_cliente_path)
             self.c_logo = ctk.CTkImage(img_c, size=(320, 320))
-            self.logo_cliente_label = ctk.CTkLabel(self.main_panel, image=self.c_logo, text="", fg_color="#1b1440")
+            self.logo_cliente_label = ctk.CTkLabel(self.main_panel, image=self.c_logo, text="", fg_color=BACKGROUND_COLOR)
             self.logo_cliente_label.pack(pady=(0, 18))
             self.logo_cliente_label.bind("<Button-1>", lambda e: self.seleccionar_logo())
         else:
-            self.logo_cliente_label = ctk.CTkLabel(self.main_panel, text="SIN LOGO",
-                                                   font=ctk.CTkFont(size=36), fg_color="#1b1440")
+            self.logo_cliente_label = ctk.CTkLabel(
+                self.main_panel,
+                text="SIN LOGO",
+                font=FONT_BOLD_MEDIUM,
+                fg_color=BACKGROUND_COLOR
+            )
             self.logo_cliente_label.pack(pady=40)
             self.logo_cliente_label.bind("<Button-1>", lambda e: self.seleccionar_logo())
 
