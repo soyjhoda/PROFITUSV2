@@ -4,11 +4,10 @@ import os
 import datetime
 from tkinter import filedialog
 import shutil
-
+from .config_page import ConfigPage  # Import relativo corregido para evitar error ModuleNotFound
 
 NOMBRE_NEGOCIO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "logo-cliente", "nombre_negocio.txt")
 LOGO_PROFITUS_PATH = r"C:\Proyectos\ERP_LITE_PYME_V2\assets\logo-app\logo.png"
-
 
 class Dashboard(ctk.CTkFrame):
     def __init__(self, master, user_data, logo_cliente_path="", on_logout=None):
@@ -36,6 +35,13 @@ class Dashboard(ctk.CTkFrame):
         if self.on_logout:
             self.on_logout()
         self.destroy()
+
+    def mostrar_configuracion(self):
+        if self.main_panel is not None:
+            self.main_panel.destroy()
+        # Al abrir configuración, pásale el callback para regresar al panel principal
+        self.main_panel = ConfigPage(self, user_management=None, on_close=self._create_main_panel)
+        self.main_panel.pack(fill='both', expand=True)
 
     def _cargar_nombre_negocio(self):
         if os.path.exists(NOMBRE_NEGOCIO_PATH):
@@ -130,7 +136,7 @@ class Dashboard(ctk.CTkFrame):
                                 hover_color="#222222",
                                 bg_color="#000000",
                                 command=lambda t=txt: self._activate_menu(t))
-            btn.place(x=20, y=y_start + i*spacing)
+            btn.place(x=20, y=y_start + i * spacing)
             self.menu_buttons.append(btn)
 
         self._activate_menu("HOME")
@@ -153,6 +159,8 @@ class Dashboard(ctk.CTkFrame):
                 b.configure(command=self.cerrar_sesion)
             if name == "Cambiar logo":
                 b.configure(command=self.seleccionar_logo)
+            if name == "Configuración":
+                b.configure(command=self.mostrar_configuracion)
             b.place(x=20, y=y_acc)
             y_acc += 39
             self.acciones_buttons.append(b)
@@ -182,6 +190,10 @@ class Dashboard(ctk.CTkFrame):
         self.menu_toggle.place(x=(5 if not self.menu_expanded else 142), y=12)
 
     def _activate_menu(self, menu_name):
+        if self.main_panel is not None and isinstance(self.main_panel, ConfigPage):
+            # Si se está mostrando configuración, cierra esa vista antes de cambiar de menú
+            self.main_panel.destroy()
+            self._create_main_panel()
         for btn in self.menu_buttons:
             if menu_name in btn.cget('text'):
                 btn.configure(fg_color="#4113AE")
