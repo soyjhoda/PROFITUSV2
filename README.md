@@ -18,6 +18,12 @@ Proyecto ERP para gestión empresarial desarrollado en Python con interfaz gráf
   - `assets/` para imágenes, logos y recursos estáticos
   - Gestión de usuarios con creación, actualización, eliminación en base SQLite
 
+- Mejoras recientes en la interfaz de configuración:
+  - Uso de imágenes como iconos en botones mediante CTkImage para mejor soporte en pantallas HighDPI
+  - Botones personalizados con imágenes de tamaño exacto y fondo transparente para una apariencia limpia
+  - Eliminación de efectos hover sobresalientes configurando colores hover coincidentes con fondo para evitar distracciones visuales
+  - Centralización de rutas a recursos gráficos en `theme.py` para facilitar mantenimiento y referenciación
+
 ---
 
 ## Próximos pasos a desarrollar
@@ -46,12 +52,10 @@ Proyecto ERP para gestión empresarial desarrollado en Python con interfaz gráf
 ## Cómo instalar y correr
 
 1. Clona este repositorio en tu computadora:  
-git clone https://github.com/soyjhoda/PROFITUSV2.git
-
+git clone [https://github.com/soyjhoda/PROFITUSV2.git](https://github.com/soyjhoda/PROFITUSV2.git)
 
 2. Entra en la carpeta del proyecto:  
 cd PROFITUSV2
-
 
 3. Crea y activa un entorno virtual (opcional pero recomendado):  
 
@@ -65,19 +69,13 @@ venv\Scripts\activate
 
 source venv/bin/activate
 
-
-
 4. Instala las dependencias del proyecto:  
 
 pip install -r requirements.txt
 
-
-
 5. Ejecuta la aplicación:  
 
 python -m src.app
-
-
 
 ---
 
@@ -99,7 +97,7 @@ Este proyecto es de uso personal y privado. Para otros usos por favor contactar 
 
 - Autor: José Daniel Marín  
 - GitHub: [soyjhoda](https://github.com/soyjhoda)  
-- Email: contactosjhoda@gmail.com / jhoda611@gmail.com
+- Email: [contactosjhoda@gmail.com](mailto:contactosjhoda@gmail.com) / [jhoda611@gmail.com](mailto:jhoda611@gmail.com)
 
 ---
 
