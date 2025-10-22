@@ -4,10 +4,11 @@ import os
 import datetime
 from tkinter import filedialog
 import shutil
-from .config_page import ConfigPage  # Import relativo corregido para evitar error ModuleNotFound
+from .config_page import ConfigPage
 
 NOMBRE_NEGOCIO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "logo-cliente", "nombre_negocio.txt")
 LOGO_PROFITUS_PATH = r"C:\Proyectos\ERP_LITE_PYME_V2\assets\logo-app\logo.png"
+
 
 class Dashboard(ctk.CTkFrame):
     def __init__(self, master, user_data, logo_cliente_path="", on_logout=None):
@@ -22,8 +23,8 @@ class Dashboard(ctk.CTkFrame):
         self.configure(fg_color="#1b1440")
 
         self.topbar_frame = None
-        self.main_panel = None
         self.sidebar = None
+        self.main_panel = None
 
         self.on_logout = on_logout  # Callback para cerrar sesión
 
@@ -41,7 +42,10 @@ class Dashboard(ctk.CTkFrame):
             self.main_panel.destroy()
         # Al abrir configuración, pásale el callback para regresar al panel principal
         self.main_panel = ConfigPage(self, user_management=None, on_close=self._create_main_panel)
-        self.main_panel.pack(fill='both', expand=True)
+        # Ubicar main panel a la derecha de sidebar
+        self.main_panel.place(x=190, y=55, relwidth=1.0, relheight=1.0, anchor='nw')
+        # Ajustar tamaño sin tapar sidebar
+        self.main_panel.place_configure(relwidth=1.0, relheight=1.0)
 
     def _cargar_nombre_negocio(self):
         if os.path.exists(NOMBRE_NEGOCIO_PATH):
@@ -69,7 +73,7 @@ class Dashboard(ctk.CTkFrame):
         if self.topbar_frame is not None:
             self.topbar_frame.destroy()
         self.topbar_frame = ctk.CTkFrame(self, height=55, fg_color="#000000")
-        self.topbar_frame.pack(side="top", fill="x")
+        self.topbar_frame.place(x=0, y=0, relwidth=1.0)
 
         bar = self.topbar_frame
 
@@ -190,8 +194,8 @@ class Dashboard(ctk.CTkFrame):
         self.menu_toggle.place(x=(5 if not self.menu_expanded else 142), y=12)
 
     def _activate_menu(self, menu_name):
+        # Cuando selecciones otro menú, cerrar configuración si está abierta
         if self.main_panel is not None and isinstance(self.main_panel, ConfigPage):
-            # Si se está mostrando configuración, cierra esa vista antes de cambiar de menú
             self.main_panel.destroy()
             self._create_main_panel()
         for btn in self.menu_buttons:
@@ -204,8 +208,8 @@ class Dashboard(ctk.CTkFrame):
         if hasattr(self, "main_panel") and self.main_panel is not None:
             self.main_panel.destroy()
 
-        self.main_panel = ctk.CTkFrame(self, fg_color="#1b1440", width=480, height=470)
-        self.main_panel.place(relx=0.5, rely=0.5, anchor="center")
+        self.main_panel = ctk.CTkFrame(self, fg_color="#1b1440")
+        self.main_panel.place(x=190, y=55, relwidth=1.0, relheight=1.0, anchor="nw")
 
         try:
             nombre = self.user_data["nombre_completo"]
