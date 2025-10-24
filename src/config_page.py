@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
+from tkinter import ttk
 from PIL import Image
 from customtkinter import CTkImage
 import os
@@ -14,6 +15,11 @@ from src.ui.theme import (
 class ConfigPage(ctk.CTkFrame):
     def __init__(self, master, user_management, on_close=None):
         super().__init__(master)
+
+        if user_management is None:
+            messagebox.showerror("Error", "user_management no puede ser None. Pasa la instancia correcta.")
+            raise ValueError("user_management es None")
+
         self.user_management = user_management
         self.on_close = on_close
 
@@ -26,7 +32,7 @@ class ConfigPage(ctk.CTkFrame):
 
         self.label_title = ctk.CTkLabel(
             self.topbar,
-            text="Configuración de la Aplicación",
+            text="[translate:Configuración de la Aplicación]",
             font=FONT_BOLD_LARGE,
             text_color=TEXT_COLOR_SECONDARY,
             fg_color="#231B44"
@@ -103,7 +109,7 @@ class ConfigPage(ctk.CTkFrame):
 
         label = ctk.CTkLabel(
             self.tab_usuarios,
-            text="Configuración de Usuarios",
+            text="[translate:Configuración de Usuarios]",
             font=FONT_BOLD_MEDIUM,
             text_color=TEXT_COLOR_SECONDARY
         )
@@ -123,10 +129,46 @@ class ConfigPage(ctk.CTkFrame):
             width=180,
             height=60,
             fg_color="transparent",
-            hover_color="#A70505",  # igual que fondo para no resaltar
+            hover_color="#A70505",
             command=self.open_create_user
         )
         self.btn_create_user.pack(pady=8)
+
+        # Frame para tabla y scrollbar
+        self.user_table_frame = ctk.CTkFrame(self.tab_usuarios, fg_color="#232150")
+        self.user_table_frame.pack(fill="both", expand=False, padx=20, pady=10)
+
+        self.user_tree = ttk.Treeview(self.user_table_frame, columns=("Usuario", "Nombre", "Rol"), height=10)
+        self.user_tree.heading("#0", text="")
+        self.user_tree.column("#0", width=0, stretch=False)
+        self.user_tree.heading("Usuario", text="[translate:Usuario]")
+        self.user_tree.column("Usuario", anchor="center", width=120)
+        self.user_tree.heading("Nombre", text="[translate:Nombre Completo]")
+        self.user_tree.column("Nombre", anchor="center", width=200)
+        self.user_tree.heading("Rol", text="[translate:Rol]")
+        self.user_tree.column("Rol", anchor="center", width=150)
+        self.user_tree.pack(side="left", fill="both", expand=True)
+
+        scrollbar = ctk.CTkScrollbar(self.user_table_frame, orientation="vertical", command=self.user_tree.yview)
+        scrollbar.pack(side="right", fill="y")
+        self.user_tree.configure(yscrollcommand=scrollbar.set)
+
+        self._load_user_data()
+
+    def _load_user_data(self):
+        # Limpiar datos anteriores para refrescar
+        for item in self.user_tree.get_children():
+            self.user_tree.delete(item)
+
+        usuarios = self.user_management.get_all_users()
+
+        # Insertar datos accediendo como diccionario SQLite
+        for usuario in usuarios:
+            self.user_tree.insert(
+                "",
+                "end",
+                values=(usuario["username"], usuario["nombre_completo"], usuario["rol"])
+            )
 
     def _create_tab_general(self):
         self.tab_general = ctk.CTkFrame(self.content_frame, fg_color="#232150")
@@ -134,13 +176,11 @@ class ConfigPage(ctk.CTkFrame):
 
         label = ctk.CTkLabel(
             self.tab_general,
-            text="Gestión General (pendiente)",
+            text="[translate:Gestión General (pendiente)]",
             font=FONT_BOLD_MEDIUM,
             text_color=TEXT_COLOR_SECONDARY
         )
         label.pack(pady=30)
-
-        # Aquí puedes agregar botones funcionales para Gestión General más adelante
 
     def _show_tab_usuarios(self):
         self.tab_general.pack_forget()
@@ -152,7 +192,7 @@ class ConfigPage(ctk.CTkFrame):
 
     def open_create_user(self):
         def refresh_users():
-            pass
+            self._load_user_data()  # Refrescar tabla tras crear usuario
 
         create_window = CreateUserWindow(self.master, self.user_management, refresh_callback=refresh_users)
         create_window.focus_set()

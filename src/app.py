@@ -16,6 +16,7 @@ class ERPApp(ctk.CTk):
         self.geometry(f"{width}x{height}+0+0")
         self.state('zoomed')
 
+        # Crear la instancia real de DBManager y UserManagement
         self.db_manager = DBManager()
         self.user_management = UserManagement(self.db_manager)
 
@@ -32,9 +33,11 @@ class ERPApp(ctk.CTk):
                 os.path.dirname(os.path.abspath(__file__)),
                 "..", "assets", "logo-cliente", "logo.png"
             )
+            # Pasar la instancia real de user_management aquí
             self.dashboard_frame = Dashboard(
                 self,
                 user_data=user,
+                user_management=self.user_management,
                 logo_cliente_path=ruta_logo_cliente,
                 on_logout=self.handle_logout  # Pasar callback para logout
             )

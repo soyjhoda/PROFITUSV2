@@ -1,5 +1,3 @@
-# dashboard.py
-
 import customtkinter as ctk
 from PIL import Image
 import os
@@ -21,11 +19,12 @@ NOMBRE_NEGOCIO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "
 
 
 class Dashboard(ctk.CTkFrame):
-    def __init__(self, master, user_data, logo_cliente_path="", on_logout=None):
+    def __init__(self, master, user_data, user_management=None, logo_cliente_path="", on_logout=None):
         super().__init__(master)
         self.pack(fill='both', expand=True)
 
         self.user_data = user_data
+        self.user_management = user_management  # Guardar la instancia real aquí
         self.logo_cliente_path = logo_cliente_path
         self.theme_mode = "dark"
         self.menu_expanded = True
@@ -50,7 +49,8 @@ class Dashboard(ctk.CTkFrame):
     def mostrar_configuracion(self):
         if self.main_panel is not None:
             self.main_panel.destroy()
-        self.main_panel = ConfigPage(self, user_management=None, on_close=self._create_main_panel)
+        # PASAMOS la instancia real de user_management aquí
+        self.main_panel = ConfigPage(self, user_management=self.user_management, on_close=self._create_main_panel)
         self.main_panel.place(x=190, y=55, relwidth=1.0, relheight=1.0, anchor='nw')
         self.main_panel.place_configure(relwidth=1.0, relheight=1.0)
 
@@ -184,7 +184,7 @@ class Dashboard(ctk.CTkFrame):
 
         self.menu_buttons = []
         menus = [("HOME", "🏠"), ("POS", "🛒"), ("INVENTARIO", "📦"),
-                ("COMPRAS", "🧾"), ("GESTION", "📋")]
+                 ("COMPRAS", "🧾"), ("GESTION", "📋")]
 
         y_start = 58
         spacing = 54
