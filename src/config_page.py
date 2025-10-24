@@ -51,12 +51,16 @@ class ConfigPage(ctk.CTkFrame):
         self.tab_buttons_frame.pack(side="top", fill="x", padx=50, pady=(20, 10))
 
         # Cargar imagen CTkImage para botón "Gestión de Usuarios"
-        img_pil = Image.open(ICON_BTN_USUARIOS_PATH)
-        self.icon_gestion_usuarios = CTkImage(light_image=img_pil, dark_image=img_pil, size=(180, 60))
+        img_pil_usuarios = Image.open(ICON_BTN_USUARIOS_PATH)
+        self.icon_gestion_usuarios = CTkImage(light_image=img_pil_usuarios, dark_image=img_pil_usuarios, size=(180, 60))
+
+        # Cargar imagen CTkImage para botón "Gestión del Negocio"
+        img_pil_negocio = Image.open("assets/iconos/btngnegocio.png")
+        self.icon_gestion_negocio = CTkImage(light_image=img_pil_negocio, dark_image=img_pil_negocio, size=(180, 60))
 
         icon_width, icon_height = 180, 60
 
-        # Botón "Gestión de Usuarios" con imagen como fondo, sin texto visible y sin sobresalir hover
+        # Botón "Gestión de Usuarios" con imagen
         self.btn_gestion_usuarios = ctk.CTkButton(
             self.tab_buttons_frame,
             image=self.icon_gestion_usuarios,
@@ -64,23 +68,23 @@ class ConfigPage(ctk.CTkFrame):
             width=icon_width,
             height=icon_height,
             fg_color="transparent",
-            hover_color="#28204d",  # Igual color que fondo para hover sutil/no sobresaliente
+            hover_color="#28204d",
             command=self._show_tab_usuarios
         )
         self.btn_gestion_usuarios.pack(side="left", padx=20)
 
-        # Botón gestión general sin sobresalir hover
-        self.btn_gestion_general = ctk.CTkButton(
+        # Botón "Gestión del Negocio" con imagen y texto oculto para apariencia limpia
+        self.btn_gestion_negocio = ctk.CTkButton(
             self.tab_buttons_frame,
-            text="Gestión General",
-            width=180,
-            height=60,
-            font=FONT_BOLD_MEDIUM,
-            fg_color=BUTTON_STYLE_DEFAULT["fg_color"],
-            hover_color=BUTTON_STYLE_DEFAULT["fg_color"],  # Igual que fg_color para no sobresalir
+            image=self.icon_gestion_negocio,
+            text="",
+            width=icon_width,
+            height=icon_height,
+            fg_color="transparent",
+            hover_color="#28204d",
             command=self._show_tab_general
         )
-        self.btn_gestion_general.pack(side="left", padx=20)
+        self.btn_gestion_negocio.pack(side="left", padx=20)
 
         # Frame para contenido de la pestaña seleccionada
         self.content_frame = ctk.CTkFrame(self, fg_color="#232150")
