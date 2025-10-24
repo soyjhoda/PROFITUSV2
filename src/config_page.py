@@ -5,12 +5,13 @@ from PIL import Image
 from customtkinter import CTkImage
 import os
 import shutil
+import tkinter.font as tkFont
 from .users.create_user import CreateUserWindow
 from src.ui.theme import (
     BACKGROUND_COLOR, BUTTON_STYLE_DEFAULT, FONT_BOLD_LARGE, FONT_BOLD_MEDIUM,
-    FONT_BOLD_SMALL, FONT_REGULAR_MEDIUM, TEXT_COLOR_SECONDARY, ICON_BTN_USUARIOS_PATH
+    FONT_BOLD_SMALL, FONT_REGULAR_MEDIUM, TEXT_COLOR_SECONDARY, ICON_BTN_USUARIOS_PATH,
+    TREE_FONT, TREE_FONT_HEADER, TREE_BG_COLOR, TREE_HEADER_BG_COLOR, TREE_HEADER_FG_COLOR, TREE_FG_COLOR, TREE_ROW_HEIGHT, TREE_SELECTED_COLOR
 )
-
 
 class ConfigPage(ctk.CTkFrame):
     def __init__(self, master, user_management, on_close=None):
@@ -32,7 +33,7 @@ class ConfigPage(ctk.CTkFrame):
 
         self.label_title = ctk.CTkLabel(
             self.topbar,
-            text="[translate:Configuración de la Aplicación]",
+            text="Configuración de la Aplicación",
             font=FONT_BOLD_LARGE,
             text_color=TEXT_COLOR_SECONDARY,
             fg_color="#231B44"
@@ -50,7 +51,7 @@ class ConfigPage(ctk.CTkFrame):
             font=FONT_BOLD_MEDIUM,
             command=self._handle_close
         )
-        self.btn_close.pack(side="right", padx=18, pady=10)
+        self.btn_close.pack(side="left", padx=18, pady=10)
 
         # Frame para botones pestañas (pestañas manuales)
         self.tab_buttons_frame = ctk.CTkFrame(self, fg_color="#28204d")
@@ -109,7 +110,7 @@ class ConfigPage(ctk.CTkFrame):
 
         label = ctk.CTkLabel(
             self.tab_usuarios,
-            text="[translate:Configuración de Usuarios]",
+            text="Configuración de Usuarios",
             font=FONT_BOLD_MEDIUM,
             text_color=TEXT_COLOR_SECONDARY
         )
@@ -134,24 +135,50 @@ class ConfigPage(ctk.CTkFrame):
         )
         self.btn_create_user.pack(pady=8)
 
-        # Frame para tabla y scrollbar
-        self.user_table_frame = ctk.CTkFrame(self.tab_usuarios, fg_color="#232150")
-        self.user_table_frame.pack(fill="both", expand=False, padx=20, pady=10)
+        # === Tabla de usuarios con scroll horizontal y vertical ===
 
-        self.user_tree = ttk.Treeview(self.user_table_frame, columns=("Usuario", "Nombre", "Rol"), height=10)
-        self.user_tree.heading("#0", text="")
-        self.user_tree.column("#0", width=0, stretch=False)
-        self.user_tree.heading("Usuario", text="[translate:Usuario]")
-        self.user_tree.column("Usuario", anchor="center", width=120)
-        self.user_tree.heading("Nombre", text="[translate:Nombre Completo]")
-        self.user_tree.column("Nombre", anchor="center", width=200)
-        self.user_tree.heading("Rol", text="[translate:Rol]")
-        self.user_tree.column("Rol", anchor="center", width=150)
+        self.user_table_frame = ctk.CTkFrame(self.tab_usuarios, fg_color="#232150")
+        self.user_table_frame.pack(fill="both", expand=True, padx=20, pady=10)
+
+        style = ttk.Style()
+        style.theme_use("default")
+        style.configure(
+            "Treeview",
+            background=TREE_BG_COLOR,
+            foreground=TREE_FG_COLOR,
+            fieldbackground=TREE_BG_COLOR,
+            rowheight=TREE_ROW_HEIGHT,
+            font=TREE_FONT
+        )
+        style.configure(
+            "Treeview.Heading",
+            background=TREE_HEADER_BG_COLOR,
+            foreground=TREE_HEADER_FG_COLOR,
+            font=TREE_FONT_HEADER
+        )
+        style.map("Treeview", background=[("selected", TREE_SELECTED_COLOR)])
+
+        self.user_tree = ttk.Treeview(
+            self.user_table_frame,
+            columns=("Usuario", "Nombre", "Rol"),
+            height=9,
+            show="headings"
+        )
+        self.user_tree.heading("Usuario", text="Usuario")
+        self.user_tree.column("Usuario", anchor="center", width=180, stretch=False)
+        self.user_tree.heading("Nombre", text="Nombre Completo")
+        self.user_tree.column("Nombre", anchor="center", width=250, stretch=False)
+        self.user_tree.heading("Rol", text="Rol")
+        self.user_tree.column("Rol", anchor="center", width=200, stretch=False)
         self.user_tree.pack(side="left", fill="both", expand=True)
 
-        scrollbar = ctk.CTkScrollbar(self.user_table_frame, orientation="vertical", command=self.user_tree.yview)
-        scrollbar.pack(side="right", fill="y")
-        self.user_tree.configure(yscrollcommand=scrollbar.set)
+        # Scrollbars
+        scrollbar_y = ctk.CTkScrollbar(self.user_table_frame, orientation="vertical", command=self.user_tree.yview)
+        scrollbar_y.pack(side="right", fill="y")
+        self.user_tree.configure(yscrollcommand=scrollbar_y.set)
+        scrollbar_x = ctk.CTkScrollbar(self.user_table_frame, orientation="horizontal", command=self.user_tree.xview)
+        scrollbar_x.pack(side="bottom", fill="x")
+        self.user_tree.configure(xscrollcommand=scrollbar_x.set)
 
         self._load_user_data()
 
@@ -176,7 +203,7 @@ class ConfigPage(ctk.CTkFrame):
 
         label = ctk.CTkLabel(
             self.tab_general,
-            text="[translate:Gestión General (pendiente)]",
+            text="Gestión General (pendiente)",
             font=FONT_BOLD_MEDIUM,
             text_color=TEXT_COLOR_SECONDARY
         )

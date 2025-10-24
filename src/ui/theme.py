@@ -31,6 +31,16 @@ FONT_REGULAR_LARGE = (FONT_FAMILY, 18)
 FONT_REGULAR_MEDIUM = (FONT_FAMILY, 14)
 FONT_REGULAR_SMALL = (FONT_FAMILY, 12)
 
+# Estilos de tabla para usar en Treeview
+TREE_FONT = ("Segoe UI", 13)
+TREE_FONT_HEADER = ("Segoe UI Semibold", 14, "bold")
+TREE_BG_COLOR = "#232150"
+TREE_HEADER_BG_COLOR = "#231B44"
+TREE_HEADER_FG_COLOR = "#84ff00"
+TREE_FG_COLOR = "#00ffcc"
+TREE_ROW_HEIGHT = 34
+TREE_SELECTED_COLOR = "#36408B"
+
 # Estilos para widgets
 BUTTON_STYLE_DEFAULT = {
     "corner_radius": 8,
