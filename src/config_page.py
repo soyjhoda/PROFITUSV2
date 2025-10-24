@@ -68,7 +68,7 @@ class ConfigPage(ctk.CTkFrame):
             width=icon_width,
             height=icon_height,
             fg_color="transparent",
-            hover_color="#28204d",
+            hover_color="#2503A0",
             command=self._show_tab_usuarios
         )
         self.btn_gestion_usuarios.pack(side="left", padx=20)
@@ -81,7 +81,7 @@ class ConfigPage(ctk.CTkFrame):
             width=icon_width,
             height=icon_height,
             fg_color="transparent",
-            hover_color="#28204d",
+            hover_color="#F30303",
             command=self._show_tab_general
         )
         self.btn_gestion_negocio.pack(side="left", padx=20)
@@ -109,12 +109,21 @@ class ConfigPage(ctk.CTkFrame):
         )
         label.pack(pady=(30, 16))
 
+        # Cargar imagen CTkImage para el botón de crear usuario
+        try:
+            img_pil_crear = Image.open("assets/iconos/btncrearusuario.png")
+            self.icon_crear_usuario = CTkImage(light_image=img_pil_crear, dark_image=img_pil_crear, size=(180, 60))
+        except Exception:
+            self.icon_crear_usuario = None
+
         self.btn_create_user = ctk.CTkButton(
             self.tab_usuarios,
-            text="Crear Nuevo Usuario",
-            font=FONT_BOLD_SMALL,
-            fg_color=BUTTON_STYLE_DEFAULT["fg_color"],
-            hover_color=BUTTON_STYLE_DEFAULT["hover_color"],
+            image=self.icon_crear_usuario,
+            text="",
+            width=180,
+            height=60,
+            fg_color="transparent",
+            hover_color="#A70505",  # igual que fondo para no resaltar
             command=self.open_create_user
         )
         self.btn_create_user.pack(pady=8)
