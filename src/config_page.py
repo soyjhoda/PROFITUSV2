@@ -135,10 +135,11 @@ class ConfigPage(ctk.CTkFrame):
         )
         self.btn_create_user.pack(pady=8)
 
-        # === Tabla de usuarios con scroll horizontal y vertical ===
+        # Tabla usuarios con ancho limitado
 
-        self.user_table_frame = ctk.CTkFrame(self.tab_usuarios, fg_color="#232150")
-        self.user_table_frame.pack(fill="both", expand=True, padx=20, pady=10)
+        self.user_table_frame = ctk.CTkFrame(self.tab_usuarios, fg_color="#232150", width=630)
+        self.user_table_frame.pack(fill="y", expand=False, padx=20, pady=10)
+        self.user_table_frame.pack_propagate(False)
 
         style = ttk.Style()
         style.theme_use("default")
@@ -170,12 +171,12 @@ class ConfigPage(ctk.CTkFrame):
         self.user_tree.column("Nombre", anchor="center", width=250, stretch=False)
         self.user_tree.heading("Rol", text="Rol")
         self.user_tree.column("Rol", anchor="center", width=200, stretch=False)
-        self.user_tree.pack(side="left", fill="both", expand=True)
+        self.user_tree.pack(side="left", fill="y", expand=False)
 
-        # Scrollbars
         scrollbar_y = ctk.CTkScrollbar(self.user_table_frame, orientation="vertical", command=self.user_tree.yview)
         scrollbar_y.pack(side="right", fill="y")
         self.user_tree.configure(yscrollcommand=scrollbar_y.set)
+
         scrollbar_x = ctk.CTkScrollbar(self.user_table_frame, orientation="horizontal", command=self.user_tree.xview)
         scrollbar_x.pack(side="bottom", fill="x")
         self.user_tree.configure(xscrollcommand=scrollbar_x.set)
@@ -183,13 +184,11 @@ class ConfigPage(ctk.CTkFrame):
         self._load_user_data()
 
     def _load_user_data(self):
-        # Limpiar datos anteriores para refrescar
         for item in self.user_tree.get_children():
             self.user_tree.delete(item)
 
         usuarios = self.user_management.get_all_users()
 
-        # Insertar datos accediendo como diccionario SQLite
         for usuario in usuarios:
             self.user_tree.insert(
                 "",
@@ -219,7 +218,7 @@ class ConfigPage(ctk.CTkFrame):
 
     def open_create_user(self):
         def refresh_users():
-            self._load_user_data()  # Refrescar tabla tras crear usuario
+            self._load_user_data()
 
         create_window = CreateUserWindow(self.master, self.user_management, refresh_callback=refresh_users)
         create_window.focus_set()
