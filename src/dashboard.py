@@ -99,11 +99,12 @@ class Dashboard(ctk.CTkFrame):
         else:
             logo_label = None
 
-        nombre_frame = ctk.CTkFrame(bar, fg_color=TOPBAR_COLOR)
-        nombre_frame.pack(side="left", padx=(0, 20), pady=2)
+        # Nombre negocio a la izquierda
+        nombre_negocio_frame = ctk.CTkFrame(bar, fg_color=TOPBAR_COLOR)
+        nombre_negocio_frame.pack(side="left", padx=(0, 20), pady=2)
 
         self.label_nombre_negocio = ctk.CTkLabel(
-            nombre_frame,
+            nombre_negocio_frame,
             text=self.nombre_negocio,
             **LABEL_STYLE_HEADER,
             fg_color=TOPBAR_COLOR
@@ -112,58 +113,33 @@ class Dashboard(ctk.CTkFrame):
         self.label_nombre_negocio.bind("<Double-1>", self._edit_nombre_negocio)
 
         self.entry_nombre_negocio = ctk.CTkEntry(
-            nombre_frame,
+            nombre_negocio_frame,
             font=FONT_REGULAR_MEDIUM,
             width=180
         )
         self.btn_guardar_nombre = ctk.CTkButton(
-            nombre_frame,
+            nombre_negocio_frame,
             text="Guardar",
             width=68,
             command=self._guardar_nombre_negocio,
             **BUTTON_STYLE_DEFAULT
         )
 
-        mode_btn = ctk.CTkButton(
-            bar,
-            text="🌗",
-            width=35,
-            height=35,
-            fg_color=TOPBAR_COLOR,
-            command=self._toggle_mode
-        )
-        mode_btn.pack(side="right", padx=9, pady=6)
+        # Avatar y nombre de usuario a la derecha
+        nombre_frame = ctk.CTkFrame(bar, fg_color=TOPBAR_COLOR)
+        nombre_frame.pack(side="right", padx=(0, 15), pady=2)
 
-        now = datetime.datetime.now()
-        fecha_label = ctk.CTkLabel(
-            bar,
-            text=now.strftime(DATE_FORMAT),
-            font=FONT_REGULAR_MEDIUM,
-            fg_color=TOPBAR_COLOR
-        )
-        fecha_label.pack(side="right", padx=15)
-
-        hora_label = ctk.CTkLabel(
-            bar,
-            text=now.strftime(TIME_FORMAT),
-            font=FONT_REGULAR_MEDIUM,
-            fg_color=TOPBAR_COLOR
-        )
-        hora_label.pack(side="right")
-
-        # Acceder a 'foto_path' sin usar .get() porque es sqlite3.Row
         user_image_path = self.user_data["foto_path"] if self.user_data and "foto_path" in self.user_data.keys() else None
         try:
             if user_image_path and os.path.exists(user_image_path):
                 img = make_circle_image(user_image_path, size=(40, 40))
                 self.user_avatar = ctk.CTkImage(img, size=(40, 40))
-                avatar_label = ctk.CTkLabel(bar, image=self.user_avatar, text="", fg_color=TOPBAR_COLOR)
+                avatar_label = ctk.CTkLabel(nombre_frame, image=self.user_avatar, text="", fg_color=TOPBAR_COLOR)
             else:
-                avatar_label = ctk.CTkLabel(bar, text="👤", font=FONT_BOLD_SMALL, fg_color=TOPBAR_COLOR)
+                avatar_label = ctk.CTkLabel(nombre_frame, text="👤", font=FONT_BOLD_SMALL, fg_color=TOPBAR_COLOR)
         except Exception as e:
-            print(f"Error cargando avatar de usuario: {e}")
-            avatar_label = ctk.CTkLabel(bar, text="👤", font=FONT_BOLD_SMALL, fg_color=TOPBAR_COLOR)
-        avatar_label.pack(side="right", padx=(22, 2))
+            avatar_label = ctk.CTkLabel(nombre_frame, text="👤", font=FONT_BOLD_SMALL, fg_color=TOPBAR_COLOR)
+        avatar_label.pack(side="left", padx=(0, 8))
 
         try:
             user_name = self.user_data["nombre_completo"]
@@ -171,16 +147,15 @@ class Dashboard(ctk.CTkFrame):
             user_name = "Usuario"
 
         user_label = ctk.CTkLabel(
-            bar,
+            nombre_frame,
             text=f"{user_name}",
             font=FONT_REGULAR_MEDIUM,
             fg_color=TOPBAR_COLOR
         )
-        user_label.pack(side="right", padx=(0, 7))
+        user_label.pack(side="left")
 
-    def _toggle_mode(self):
-        self.theme_mode = "light" if self.theme_mode == "dark" else "dark"
-        ctk.set_appearance_mode(self.theme_mode)
+        # NO crear el botón de cambio de modo oscuro/claro
+        # NO crear ni mostrar fecha/hora en ningún lugar
 
     def _create_sidebar(self):
         if self.sidebar is not None:
