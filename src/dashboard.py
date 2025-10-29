@@ -32,7 +32,7 @@ class Dashboard(ctk.CTkFrame):
         self.pack(fill='both', expand=True)
 
         self.user_data = user_data
-        self.user_management = user_management  # Guardar la instancia real aquí
+        self.user_management = user_management
         self.logo_cliente_path = logo_cliente_path
         self.theme_mode = "dark"
         self.menu_expanded = True
@@ -43,7 +43,7 @@ class Dashboard(ctk.CTkFrame):
         self.sidebar = None
         self.main_panel = None
 
-        self.on_logout = on_logout  # Callback para cerrar sesión
+        self.on_logout = on_logout
 
         self._create_topbar()
         self._create_sidebar()
@@ -57,7 +57,6 @@ class Dashboard(ctk.CTkFrame):
     def mostrar_configuracion(self):
         if self.main_panel is not None:
             self.main_panel.destroy()
-        # PASAMOS la instancia real de user_management aquí
         self.main_panel = ConfigPage(self, user_management=self.user_management, on_close=self._create_main_panel)
         self.main_panel.place(x=190, y=55, relwidth=1.0, relheight=1.0, anchor='nw')
         self.main_panel.place_configure(relwidth=1.0, relheight=1.0)
@@ -90,10 +89,8 @@ class Dashboard(ctk.CTkFrame):
         self.topbar_frame = ctk.CTkFrame(self, height=55, fg_color=TOPBAR_COLOR)
         self.topbar_frame.place(x=0, y=0, relwidth=1.0)
 
-
         bar = self.topbar_frame
 
-        # Mostrar logo cliente si existe
         if self.logo_cliente_path and os.path.exists(self.logo_cliente_path):
             img_logo = Image.open(self.logo_cliente_path).resize((38, 38))
             self.logo_topbar = ctk.CTkImage(img_logo, size=(38, 38))
@@ -154,16 +151,17 @@ class Dashboard(ctk.CTkFrame):
         )
         hora_label.pack(side="right")
 
-        # Mostrar foto redondeada del usuario junto a su nombre
+        # Acceder a 'foto_path' sin usar .get() porque es sqlite3.Row
+        user_image_path = self.user_data["foto_path"] if self.user_data and "foto_path" in self.user_data.keys() else None
         try:
-            user_image_path = self.user_data.get("foto_path")
             if user_image_path and os.path.exists(user_image_path):
                 img = make_circle_image(user_image_path, size=(40, 40))
                 self.user_avatar = ctk.CTkImage(img, size=(40, 40))
                 avatar_label = ctk.CTkLabel(bar, image=self.user_avatar, text="", fg_color=TOPBAR_COLOR)
             else:
                 avatar_label = ctk.CTkLabel(bar, text="👤", font=FONT_BOLD_SMALL, fg_color=TOPBAR_COLOR)
-        except Exception:
+        except Exception as e:
+            print(f"Error cargando avatar de usuario: {e}")
             avatar_label = ctk.CTkLabel(bar, text="👤", font=FONT_BOLD_SMALL, fg_color=TOPBAR_COLOR)
         avatar_label.pack(side="right", padx=(22, 2))
 
