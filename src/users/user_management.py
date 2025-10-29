@@ -48,6 +48,7 @@ class UserManagement:
             return False
 
     def delete_user(self, user_id):
+        """Elimina el usuario especificado por su id."""
         try:
             self.db.execute(
                 "DELETE FROM usuarios WHERE id = ?", (user_id,)

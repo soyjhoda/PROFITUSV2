@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, simpledialog
 from tkinter import ttk
 from PIL import Image
 from customtkinter import CTkImage
@@ -7,11 +7,13 @@ import os
 import shutil
 import tkinter.font as tkFont
 from .users.create_user import CreateUserWindow
+from .users.edit_user import EditUserWindow
 from src.ui.theme import (
     BACKGROUND_COLOR, BUTTON_STYLE_DEFAULT, FONT_BOLD_LARGE, FONT_BOLD_MEDIUM,
     FONT_BOLD_SMALL, FONT_REGULAR_MEDIUM, TEXT_COLOR_SECONDARY, ICON_BTN_USUARIOS_PATH,
     TREE_FONT, TREE_FONT_HEADER, TREE_BG_COLOR, TREE_HEADER_BG_COLOR, TREE_HEADER_FG_COLOR, TREE_FG_COLOR, TREE_ROW_HEIGHT, TREE_SELECTED_COLOR
 )
+
 
 class ConfigPage(ctk.CTkFrame):
     def __init__(self, master, user_management, on_close=None):
@@ -181,7 +183,81 @@ class ConfigPage(ctk.CTkFrame):
         scrollbar_x.pack(side="bottom", fill="x")
         self.user_tree.configure(xscrollcommand=scrollbar_x.set)
 
+        # Agregamos los botones de acción debajo de la tabla
+        self.buttons_frame = ctk.CTkFrame(self.tab_usuarios, fg_color="#232150")
+        self.buttons_frame.pack(pady=(5, 20))
+
+        self.btn_edit_user = ctk.CTkButton(
+            self.buttons_frame,
+            text="Editar Usuario",
+            width=140,
+            command=self.edit_selected_user,
+            hover_color="#3D8AFF"
+        )
+        self.btn_edit_user.pack(side="left", padx=12)
+
+        self.btn_delete_user = ctk.CTkButton(
+            self.buttons_frame,
+            text="Eliminar Usuario",
+            width=140,
+            command=self.delete_selected_user,
+            fg_color="#D74343",
+            hover_color="#FF0000"
+        )
+        self.btn_delete_user.pack(side="left", padx=12)
+
+        self.btn_view_info = ctk.CTkButton(
+            self.buttons_frame,
+            text="Ver Información",
+            width=140,
+            command=self.view_selected_user_info,
+            fg_color="#4CAF50",
+            hover_color="#66BB6A"
+        )
+        self.btn_view_info.pack(side="left", padx=12)
+
         self._load_user_data()
+
+    def edit_selected_user(self):
+        selected = self.user_tree.selection()
+        if not selected:
+            messagebox.showwarning("Seleccione un Usuario", "Por favor seleccione un usuario para editar.")
+            return
+        user_id = self._get_user_id_from_selection(selected[0])
+        EditUserWindow(self, self.user_management, user_id, self._load_user_data).focus_set()
+
+    def delete_selected_user(self):
+        selected = self.user_tree.selection()
+        if not selected:
+            messagebox.showwarning("Seleccione un Usuario", "Por favor seleccione un usuario para eliminar.")
+            return
+        confirm = messagebox.askyesno("Confirmar Eliminación", "¿Está seguro de eliminar este usuario?")
+        if confirm:
+            user_id = self._get_user_id_from_selection(selected[0])
+            success = self.user_management.delete_user(user_id)
+            if success:
+                messagebox.showinfo("Usuario Eliminado", "El usuario fue eliminado exitosamente.")
+                self._load_user_data()
+            else:
+                messagebox.showerror("Error", "No se pudo eliminar el usuario.")
+
+    def view_selected_user_info(self):
+        selected = self.user_tree.selection()
+        if not selected:
+            messagebox.showwarning("Seleccione un Usuario", "Por favor seleccione un usuario para ver información.")
+            return
+        user_id = self._get_user_id_from_selection(selected[0])
+        user_data = self.user_management.db.fetch_one("SELECT * FROM usuarios WHERE id=?", (user_id,))
+        if user_data:
+            info = f"Usuario: {user_data['username']}\nNombre Completo: {user_data['nombre_completo']}\nRol: {user_data['rol']}"
+            messagebox.showinfo("Información del Usuario", info)
+        else:
+            messagebox.showerror("Error", "No se pudo obtener la información del usuario.")
+
+    def _get_user_id_from_selection(self, tree_item_id):
+        # Esto asume que el id real del usuario se guarda en el 'iid' del item, o que puedes obtenerlo del user_tree
+        # Si en tu insert usas como iid el id real del usuario, devuelve ese valor
+        return int(tree_item_id)
 
     def _load_user_data(self):
         for item in self.user_tree.get_children():
@@ -190,9 +266,11 @@ class ConfigPage(ctk.CTkFrame):
         usuarios = self.user_management.get_all_users()
 
         for usuario in usuarios:
+            # Insertar usando como iid el id real para poder recuperar luego
             self.user_tree.insert(
                 "",
                 "end",
+                iid=str(usuario["id"]),
                 values=(usuario["username"], usuario["nombre_completo"], usuario["rol"])
             )
 
