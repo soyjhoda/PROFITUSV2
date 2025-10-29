@@ -13,6 +13,7 @@ from src.ui.theme import (
     LOGO_PROFITUS_PATH,
     DATE_FORMAT, TIME_FORMAT
 )
+from src.currency import currency_model as cm
 
 NOMBRE_NEGOCIO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "logo-cliente", "nombre_negocio.txt")
 
@@ -42,12 +43,14 @@ class Dashboard(ctk.CTkFrame):
         self.topbar_frame = None
         self.sidebar = None
         self.main_panel = None
+        self.tasa_label = None
 
         self.on_logout = on_logout
 
         self._create_topbar()
         self._create_sidebar()
         self._create_main_panel()
+        self.programar_refresco_tasa()  # Refresco automático
 
     def cerrar_sesion(self):
         if self.on_logout:
@@ -57,9 +60,13 @@ class Dashboard(ctk.CTkFrame):
     def mostrar_configuracion(self):
         if self.main_panel is not None:
             self.main_panel.destroy()
-        self.main_panel = ConfigPage(self, user_management=self.user_management, on_close=self._create_main_panel)
+        self.main_panel = ConfigPage(self, user_management=self.user_management, on_close=self._on_salir_config)
         self.main_panel.place(x=190, y=55, relwidth=1.0, relheight=1.0, anchor='nw')
         self.main_panel.place_configure(relwidth=1.0, relheight=1.0)
+
+    def _on_salir_config(self):
+        self._create_main_panel()
+        self.refrescar_tasa_bcv()
 
     def _cargar_nombre_negocio(self):
         if os.path.exists(NOMBRE_NEGOCIO_PATH):
@@ -154,14 +161,27 @@ class Dashboard(ctk.CTkFrame):
         )
         user_label.pack(side="left")
 
-        # NO crear el botón de cambio de modo oscuro/claro
-        # NO crear ni mostrar fecha/hora en ningún lugar
-
     def _create_sidebar(self):
         if self.sidebar is not None:
             self.sidebar.destroy()
         self.sidebar = ctk.CTkFrame(self, fg_color=SIDEBAR_COLOR, width=190)
         self.sidebar.place(x=0, y=55, relheight=1.0, anchor="nw")
+
+        # --- BLOQUE TASA BCV (arriba sobre botones) ---
+        tasa = cm.get_tasa("BCV")
+        txt_tasa = f"Tasa BCV: {tasa}" if tasa else "Tasa BCV: --"
+        self.tasa_label = ctk.CTkLabel(
+            self.sidebar,
+            text=txt_tasa,
+            font=FONT_BOLD_MEDIUM,
+            fg_color="#262A44",
+            text_color="#11d199",
+            corner_radius=9,
+            height=32,
+            width=170,
+            anchor="center"
+        )
+        self.tasa_label.place(x=10, y=16)
 
         self.menu_toggle = ctk.CTkButton(
             self.sidebar,
@@ -171,13 +191,13 @@ class Dashboard(ctk.CTkFrame):
             fg_color=SIDEBAR_COLOR,
             command=self._toggle_sidebar
         )
-        self.menu_toggle.place(x=142, y=12)
+        self.menu_toggle.place(x=142, y=12 + 40)  # Mueve el botón debajo de la tasa
 
         self.menu_buttons = []
         menus = [("HOME", "🏠"), ("POS", "🛒"), ("INVENTARIO", "📦"),
                  ("COMPRAS", "🧾"), ("GESTION", "📋")]
 
-        y_start = 58
+        y_start = 58 + 34  # baja el bloque de botones
         spacing = 54
 
         for i, (txt, icon) in enumerate(menus):
@@ -239,6 +259,16 @@ class Dashboard(ctk.CTkFrame):
             logo_label = ctk.CTkLabel(self.sidebar, image=self.profitus_logo, text="", fg_color=SIDEBAR_COLOR)
             logo_label.place(relx=0.5, rely=1.0, anchor="s", y=-120)
 
+    def refrescar_tasa_bcv(self):
+        tasa = cm.get_tasa("BCV")
+        txt_tasa = f"Tasa BCV: {tasa}" if tasa else "Tasa BCV: --"
+        if self.tasa_label:
+            self.tasa_label.configure(text=txt_tasa)
+
+    def programar_refresco_tasa(self):
+        self.refrescar_tasa_bcv()
+        self.after(3000, self.programar_refresco_tasa)  # Refresco cada 3 segundos
+
     def _toggle_sidebar(self):
         new_width = 52 if self.menu_expanded else 190
         self.menu_expanded = not self.menu_expanded
@@ -255,7 +285,7 @@ class Dashboard(ctk.CTkFrame):
                 else:
                     icon, txt = parts[0], parts[1]
                 btn.configure(text=f"{icon} {txt}")
-        self.menu_toggle.place(x=(5 if not self.menu_expanded else 142), y=12)
+        self.menu_toggle.place(x=(5 if not self.menu_expanded else 142), y=52)
 
     def _activate_menu(self, menu_name):
         if self.main_panel is not None and isinstance(self.main_panel, ConfigPage):
