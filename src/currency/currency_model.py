@@ -10,7 +10,7 @@ def get_connection():
     return sqlite3.connect(DB_PATH)
 
 # ---------- TASAS ----------
-def save_tasas(bcv, paralela):
+def crear_tabla_tasas_si_no_existe():
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("""
@@ -20,6 +20,13 @@ def save_tasas(bcv, paralela):
             fecha_actualizacion TEXT
         )
     """)
+    conn.commit()
+    conn.close()
+
+def save_tasas(bcv, paralela):
+    conn = get_connection()
+    cursor = conn.cursor()
+    crear_tabla_tasas_si_no_existe()
     fecha = datetime.now().isoformat(sep=' ', timespec='seconds')
     cursor.execute("""
         INSERT INTO tasas (tipo_tasa, valor, fecha_actualizacion)
@@ -41,13 +48,7 @@ def save_tasas(bcv, paralela):
 def get_tasa(tipo):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS tasas (
-            tipo_tasa TEXT PRIMARY KEY,
-            valor REAL,
-            fecha_actualizacion TEXT
-        )
-    """)
+    crear_tabla_tasas_si_no_existe()
     cursor.execute("SELECT valor FROM tasas WHERE tipo_tasa = ?", (tipo,))
     row = cursor.fetchone()
     conn.close()

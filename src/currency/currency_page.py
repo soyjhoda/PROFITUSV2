@@ -15,8 +15,8 @@ class CurrencyManager(ctk.CTkToplevel):
         self.focus()
         self.grab_set()
 
-        # Crear tablas si no existen (opcional, por robustez)
-        cm.save_tasas(0, 0)  # Esto crea la tabla tasas si aún no existe, guardando valores "ficticios"
+        # Solo crear la tabla de tasas si no existe, sin sobrescribir valores
+        cm.crear_tabla_tasas_si_no_existe()
 
         self._build_ui()
         self._llenar_datos_db()
