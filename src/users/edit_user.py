@@ -2,6 +2,7 @@ import os
 import shutil
 import customtkinter as ctk
 from tkinter import messagebox, filedialog
+from ..config.settings import USER_IMAGES_DIR  # Importar ruta fija
 
 class EditUserWindow(ctk.CTkToplevel):
     def __init__(self, master, user_management, user_id, refresh_callback):
@@ -78,21 +79,19 @@ class EditUserWindow(ctk.CTkToplevel):
             messagebox.showwarning("Faltan Datos", "Nombre y rol son obligatorios.")
             return
 
-        profile_image_relpath = self.user_data["foto_path"]
+        profile_image_path = self.user_data["foto_path"]
         if self.user_image_path:
-            if not os.path.exists(USER_IMAGES_DIR):
-                os.makedirs(USER_IMAGES_DIR)
             filename = f"{self.user_data['username']}_{os.path.basename(self.user_image_path)}"
             dest_path = os.path.join(USER_IMAGES_DIR, filename)
             try:
                 shutil.copy(self.user_image_path, dest_path)
-                profile_image_relpath = dest_path
+                profile_image_path = dest_path
             except Exception as e:
                 messagebox.showerror("Error guardando imagen", str(e))
                 return
 
         success = self.user_management.update_user_details(
-            self.user_id, self.user_data["username"], new_name, new_role, profile_image_relpath)
+            self.user_id, self.user_data["username"], new_name, new_role, profile_image_path)
 
         if success:
             messagebox.showinfo("Usuario Actualizado", f"Datos de {new_name} guardados exitosamente.")

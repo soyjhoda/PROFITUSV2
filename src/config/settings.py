@@ -1,9 +1,8 @@
 import os
 
-# Carpeta base del proyecto (carpeta raíz src)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Definir ruta absoluta fija dentro del proyecto para imágenes de usuario
+USER_IMAGES_DIR = r"C:\Proyectos\ERP_LITE_PYME_V2\assets\imagen-usuarios"
 
-# Carpeta donde se guardarán las imágenes de usuarios
-USER_IMAGES_DIR = os.path.join(BASE_DIR, "user_images")
-
-# Puedes agregar más configuraciones generales aquí (como rutas, configuraciones globales, etc.)
+# Crear carpeta si no existe para evitar errores
+if not os.path.exists(USER_IMAGES_DIR):
+    os.makedirs(USER_IMAGES_DIR)

@@ -15,6 +15,7 @@ from src.ui.theme import (
 )
 
 
+
 class ConfigPage(ctk.CTkFrame):
     def __init__(self, master, user_management, on_close=None):
         super().__init__(master)
@@ -249,8 +250,21 @@ class ConfigPage(ctk.CTkFrame):
         user_id = self._get_user_id_from_selection(selected[0])
         user_data = self.user_management.db.fetch_one("SELECT * FROM usuarios WHERE id=?", (user_id,))
         if user_data:
-            info = f"Usuario: {user_data['username']}\nNombre Completo: {user_data['nombre_completo']}\nRol: {user_data['rol']}"
-            messagebox.showinfo("Información del Usuario", info)
+            info_window = ctk.CTkToplevel(self)
+            info_window.title(f"Información de {user_data['username']}")
+            info_window.geometry("300x300")
+            # Mostrar foto si existe
+            if user_data['foto_path'] and os.path.exists(user_data['foto_path']):
+                image = Image.open(user_data['foto_path'])
+                image = image.resize((100, 100))
+                photo = CTkImage(image, size=(100, 100))
+                label_image = ctk.CTkLabel(info_window, image=photo)
+                label_image.image = photo
+                label_image.pack(pady=10)
+            # Mostrar texto con info
+            info_text = f"Usuario: {user_data['username']}\nNombre Completo: {user_data['nombre_completo']}\nRol: {user_data['rol']}"
+            label_info = ctk.CTkLabel(info_window, text=info_text)
+            label_info.pack(pady=10)
         else:
             messagebox.showerror("Error", "No se pudo obtener la información del usuario.")
 

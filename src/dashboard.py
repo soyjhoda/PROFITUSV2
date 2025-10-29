@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from PIL import Image
+from PIL import Image, ImageDraw
 import os
 import datetime
 from tkinter import filedialog
@@ -14,9 +14,17 @@ from src.ui.theme import (
     DATE_FORMAT, TIME_FORMAT
 )
 
-
 NOMBRE_NEGOCIO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "logo-cliente", "nombre_negocio.txt")
 
+def make_circle_image(image_path, size=(40, 40)):
+    im = Image.open(image_path).resize(size).convert("RGBA")
+    bigsize = (im.size[0] * 3, im.size[1] * 3)
+    mask = Image.new('L', bigsize, 0)
+    draw = ImageDraw.Draw(mask)
+    draw.ellipse((0, 0) + bigsize, fill=255)
+    mask = mask.resize(im.size, Image.LANCZOS)
+    im.putalpha(mask)
+    return im
 
 class Dashboard(ctk.CTkFrame):
     def __init__(self, master, user_data, user_management=None, logo_cliente_path="", on_logout=None):
@@ -82,8 +90,10 @@ class Dashboard(ctk.CTkFrame):
         self.topbar_frame = ctk.CTkFrame(self, height=55, fg_color=TOPBAR_COLOR)
         self.topbar_frame.place(x=0, y=0, relwidth=1.0)
 
+
         bar = self.topbar_frame
 
+        # Mostrar logo cliente si existe
         if self.logo_cliente_path and os.path.exists(self.logo_cliente_path):
             img_logo = Image.open(self.logo_cliente_path).resize((38, 38))
             self.logo_topbar = ctk.CTkImage(img_logo, size=(38, 38))
@@ -116,6 +126,7 @@ class Dashboard(ctk.CTkFrame):
             command=self._guardar_nombre_negocio,
             **BUTTON_STYLE_DEFAULT
         )
+
         mode_btn = ctk.CTkButton(
             bar,
             text="🌗",
@@ -143,17 +154,24 @@ class Dashboard(ctk.CTkFrame):
         )
         hora_label.pack(side="right")
 
+        # Mostrar foto redondeada del usuario junto a su nombre
+        try:
+            user_image_path = self.user_data.get("foto_path")
+            if user_image_path and os.path.exists(user_image_path):
+                img = make_circle_image(user_image_path, size=(40, 40))
+                self.user_avatar = ctk.CTkImage(img, size=(40, 40))
+                avatar_label = ctk.CTkLabel(bar, image=self.user_avatar, text="", fg_color=TOPBAR_COLOR)
+            else:
+                avatar_label = ctk.CTkLabel(bar, text="👤", font=FONT_BOLD_SMALL, fg_color=TOPBAR_COLOR)
+        except Exception:
+            avatar_label = ctk.CTkLabel(bar, text="👤", font=FONT_BOLD_SMALL, fg_color=TOPBAR_COLOR)
+        avatar_label.pack(side="right", padx=(22, 2))
+
         try:
             user_name = self.user_data["nombre_completo"]
         except (KeyError, TypeError):
             user_name = "Usuario"
-        avatar_label = ctk.CTkLabel(
-            bar,
-            text="👤",
-            font=FONT_BOLD_SMALL,
-            fg_color=TOPBAR_COLOR
-        )
-        avatar_label.pack(side="right", padx=(22, 2))
+
         user_label = ctk.CTkLabel(
             bar,
             text=f"{user_name}",

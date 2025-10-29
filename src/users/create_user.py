@@ -2,7 +2,7 @@ import os
 import shutil
 import customtkinter as ctk
 from tkinter import messagebox, filedialog
-from ..config.settings import USER_IMAGES_DIR  # Ruta carpeta imágenes
+from ..config.settings import USER_IMAGES_DIR  # Importar ruta fija
 
 class CreateUserWindow(ctk.CTkToplevel):
     def __init__(self, master, user_management, refresh_callback):
@@ -27,10 +27,10 @@ class CreateUserWindow(ctk.CTkToplevel):
         self.frame_form = ctk.CTkFrame(self)
         self.frame_form.pack(pady=10, padx=20, fill="x")
 
-        # Inputs
         self.entry_username = self._add_labeled_entry("Usuario (Login):")
         self.entry_password = self._add_labeled_entry("Contraseña:", show="*")
         self.entry_name = self._add_labeled_entry("Nombre Completo:")
+
         ctk.CTkLabel(self.frame_form, text="Rol Asignado:").pack(anchor="w", padx=10, pady=(12, 0))
         self.combobox_role = ctk.CTkComboBox(self.frame_form,
                                              values=["Vendedor", "Gerente", "Administrador Total", "Creador/Programador"],
@@ -78,8 +78,6 @@ class CreateUserWindow(ctk.CTkToplevel):
 
         foto_path = None
         if self.user_image_path:
-            if not os.path.exists(USER_IMAGES_DIR):
-                os.makedirs(USER_IMAGES_DIR)
             file_dest = os.path.join(USER_IMAGES_DIR, f"{username}_{os.path.basename(self.user_image_path)}")
             try:
                 shutil.copy(self.user_image_path, file_dest)
