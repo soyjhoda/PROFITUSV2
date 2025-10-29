@@ -14,8 +14,6 @@ from src.ui.theme import (
     TREE_FONT, TREE_FONT_HEADER, TREE_BG_COLOR, TREE_HEADER_BG_COLOR, TREE_HEADER_FG_COLOR, TREE_FG_COLOR, TREE_ROW_HEIGHT, TREE_SELECTED_COLOR
 )
 
-
-
 class ConfigPage(ctk.CTkFrame):
     def __init__(self, master, user_management, on_close=None):
         super().__init__(master)
@@ -68,6 +66,10 @@ class ConfigPage(ctk.CTkFrame):
         img_pil_negocio = Image.open("assets/iconos/btngnegocio.png")
         self.icon_gestion_negocio = CTkImage(light_image=img_pil_negocio, dark_image=img_pil_negocio, size=(180, 60))
 
+        # Cargar imagen para botón Gestión de Finanzas (ajusta la ruta e ícono a tu imagen)
+        img_pil_finanzas = Image.open("assets/iconos/btnfinanzas.png")
+        self.icon_gestion_finanza = CTkImage(light_image=img_pil_finanzas, dark_image=img_pil_finanzas, size=(180, 60))
+
         icon_width, icon_height = 180, 60
 
         # Botón "Gestión de Usuarios" con imagen
@@ -83,7 +85,7 @@ class ConfigPage(ctk.CTkFrame):
         )
         self.btn_gestion_usuarios.pack(side="left", padx=20)
 
-        # Botón "Gestión del Negocio" con imagen y texto oculto para apariencia limpia
+        # Botón "Gestión del Negocio"
         self.btn_gestion_negocio = ctk.CTkButton(
             self.tab_buttons_frame,
             image=self.icon_gestion_negocio,
@@ -95,6 +97,19 @@ class ConfigPage(ctk.CTkFrame):
             command=self._show_tab_general
         )
         self.btn_gestion_negocio.pack(side="left", padx=20)
+
+        # --- NUEVO BOTÓN "Gestión de Finanzas" ---
+        self.btn_gestion_finanza = ctk.CTkButton(
+            self.tab_buttons_frame,
+            image=self.icon_gestion_finanza,
+            text="",
+            width=icon_width,
+            height=icon_height,
+            fg_color="transparent",
+            hover_color="#2503A0",
+            command=self.open_finance_manager
+        )
+        self.btn_gestion_finanza.pack(side="left", padx=20)
 
         # Frame para contenido de la pestaña seleccionada
         self.content_frame = ctk.CTkFrame(self, fg_color="#232150")
@@ -139,7 +154,6 @@ class ConfigPage(ctk.CTkFrame):
         self.btn_create_user.pack(pady=8)
 
         # Tabla usuarios con ancho limitado
-
         self.user_table_frame = ctk.CTkFrame(self.tab_usuarios, fg_color="#232150", width=630)
         self.user_table_frame.pack(fill="y", expand=False, padx=20, pady=10)
         self.user_table_frame.pack_propagate(False)
@@ -278,9 +292,7 @@ class ConfigPage(ctk.CTkFrame):
             self.user_tree.delete(item)
 
         usuarios = self.user_management.get_all_users()
-
         for usuario in usuarios:
-            # Insertar usando como iid el id real para poder recuperar luego
             self.user_tree.insert(
                 "",
                 "end",
@@ -314,6 +326,11 @@ class ConfigPage(ctk.CTkFrame):
 
         create_window = CreateUserWindow(self.master, self.user_management, refresh_callback=refresh_users)
         create_window.focus_set()
+
+    def open_finance_manager(self):
+        from src.currency.currency_page import CurrencyManager  # Import dentro para evitar ciclos
+        finanzas_window = CurrencyManager()
+        finanzas_window.focus_set()
 
     def _handle_close(self):
         if callable(self.on_close):

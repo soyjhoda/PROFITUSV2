@@ -38,6 +38,8 @@ Proyecto ERP para gestión empresarial desarrollado en Python con interfaz gráf
 
 ---
 
+## Em la carpeta currency
+esta implementada, toda la logica de las tasas de cambio y lo que a finanza se refiere
 ## Requisitos para ejecutar el proyecto
 
 - Python 3.10 o superior  
