@@ -19,22 +19,28 @@ class ConfigPage(ctk.CTkFrame):
     def __init__(self, master, user_management, on_close=None, rol_usuario_logueado=None):
         super().__init__(master)
 
+
         if user_management is None:
             messagebox.showerror("Error", "user_management no puede ser None. Pasa la instancia correcta.")
             raise ValueError("user_management es None")
 
+
         self.user_management = user_management
         self.on_close = on_close
+
 
         # Guardar el rol recibido para validar permisos
         self.rol_usuario_logueado = rol_usuario_logueado
 
+
         self.configure(fg_color=BACKGROUND_COLOR)
         self.pack(fill="both", expand=True)
+
 
         # Topbar con título y botón cerrar
         self.topbar = ctk.CTkFrame(self, height=60, fg_color="#231B44")
         self.topbar.pack(side='top', fill='x')
+
 
         self.label_title = ctk.CTkLabel(
             self.topbar,
@@ -44,6 +50,7 @@ class ConfigPage(ctk.CTkFrame):
             fg_color="#231B44"
         )
         self.label_title.pack(side='left', padx=30, pady=18)
+
 
         self.btn_close = ctk.CTkButton(
             self.topbar,
@@ -58,23 +65,29 @@ class ConfigPage(ctk.CTkFrame):
         )
         self.btn_close.pack(side="left", padx=18, pady=10)
 
+
         # Frame para botones pestañas (pestañas manuales)
         self.tab_buttons_frame = ctk.CTkFrame(self, fg_color="#28204d")
         self.tab_buttons_frame.pack(side="top", fill="x", padx=50, pady=(20, 10))
+
 
         # Cargar imagen CTkImage para botón "Gestión de Usuarios"
         img_pil_usuarios = Image.open(ICON_BTN_USUARIOS_PATH)
         self.icon_gestion_usuarios = CTkImage(light_image=img_pil_usuarios, dark_image=img_pil_usuarios, size=(180, 60))
 
+
         # Cargar imagen CTkImage para botón "Gestión del Negocio"
         img_pil_negocio = Image.open("assets/iconos/btngnegocio.png")
         self.icon_gestion_negocio = CTkImage(light_image=img_pil_negocio, dark_image=img_pil_negocio, size=(180, 60))
+
 
         # Cargar imagen para botón Gestión de Finanzas (ajusta la ruta e ícono a tu imagen)
         img_pil_finanzas = Image.open("assets/iconos/btnfinanzas.png")
         self.icon_gestion_finanza = CTkImage(light_image=img_pil_finanzas, dark_image=img_pil_finanzas, size=(180, 60))
 
+
         icon_width, icon_height = 180, 60
+
 
         # Botón "Gestión de Usuarios" con imagen
         self.btn_gestion_usuarios = ctk.CTkButton(
@@ -89,6 +102,7 @@ class ConfigPage(ctk.CTkFrame):
         )
         self.btn_gestion_usuarios.pack(side="left", padx=20)
 
+
         # Botón "Gestión del Negocio"
         self.btn_gestion_negocio = ctk.CTkButton(
             self.tab_buttons_frame,
@@ -101,6 +115,7 @@ class ConfigPage(ctk.CTkFrame):
             command=self._show_tab_general
         )
         self.btn_gestion_negocio.pack(side="left", padx=20)
+
 
         # --- NUEVO BOTÓN "Gestión de Finanzas" ---
         self.btn_gestion_finanza = ctk.CTkButton(
@@ -115,20 +130,25 @@ class ConfigPage(ctk.CTkFrame):
         )
         self.btn_gestion_finanza.pack(side="left", padx=20)
 
+
         # Frame para contenido de la pestaña seleccionada
         self.content_frame = ctk.CTkFrame(self, fg_color="#232150")
         self.content_frame.pack(fill="both", expand=True, padx=50, pady=(10, 30))
+
 
         # Crear contenedores por pestaña
         self._create_tab_usuarios()
         self._create_tab_general()
 
+
         # Mostrar pestaña usuarios por defecto
         self._show_tab_usuarios()
+
 
     def _create_tab_usuarios(self):
         self.tab_usuarios = ctk.CTkFrame(self.content_frame, fg_color="#232150")
         self.tab_usuarios.pack(fill="both", expand=True)
+
 
         label = ctk.CTkLabel(
             self.tab_usuarios,
@@ -138,12 +158,14 @@ class ConfigPage(ctk.CTkFrame):
         )
         label.pack(pady=(30, 16))
 
+
         # Cargar imagen CTkImage para el botón de crear usuario
         try:
             img_pil_crear = Image.open("assets/iconos/btncrearusuario.png")
             self.icon_crear_usuario = CTkImage(light_image=img_pil_crear, dark_image=img_pil_crear, size=(180, 60))
         except Exception:
             self.icon_crear_usuario = None
+
 
         self.btn_create_user = ctk.CTkButton(
             self.tab_usuarios,
@@ -157,10 +179,12 @@ class ConfigPage(ctk.CTkFrame):
         )
         self.btn_create_user.pack(pady=8)
 
+
         # Tabla usuarios con ancho limitado
         self.user_table_frame = ctk.CTkFrame(self.tab_usuarios, fg_color="#232150", width=630)
         self.user_table_frame.pack(fill="y", expand=False, padx=20, pady=10)
         self.user_table_frame.pack_propagate(False)
+
 
         style = ttk.Style()
         style.theme_use("default")
@@ -180,6 +204,7 @@ class ConfigPage(ctk.CTkFrame):
         )
         style.map("Treeview", background=[("selected", TREE_SELECTED_COLOR)])
 
+
         self.user_tree = ttk.Treeview(
             self.user_table_frame,
             columns=("Usuario", "Nombre", "Rol"),
@@ -194,17 +219,21 @@ class ConfigPage(ctk.CTkFrame):
         self.user_tree.column("Rol", anchor="center", width=200, stretch=False)
         self.user_tree.pack(side="left", fill="y", expand=False)
 
+
         scrollbar_y = ctk.CTkScrollbar(self.user_table_frame, orientation="vertical", command=self.user_tree.yview)
         scrollbar_y.pack(side="right", fill="y")
         self.user_tree.configure(yscrollcommand=scrollbar_y.set)
+
 
         scrollbar_x = ctk.CTkScrollbar(self.user_table_frame, orientation="horizontal", command=self.user_tree.xview)
         scrollbar_x.pack(side="bottom", fill="x")
         self.user_tree.configure(xscrollcommand=scrollbar_x.set)
 
+
         # Agregamos los botones de acción debajo de la tabla
         self.buttons_frame = ctk.CTkFrame(self.tab_usuarios, fg_color="#232150")
         self.buttons_frame.pack(pady=(5, 20))
+
 
         self.btn_edit_user = ctk.CTkButton(
             self.buttons_frame,
@@ -214,6 +243,7 @@ class ConfigPage(ctk.CTkFrame):
             hover_color="#3D8AFF"
         )
         self.btn_edit_user.pack(side="left", padx=12)
+
 
         self.btn_delete_user = ctk.CTkButton(
             self.buttons_frame,
@@ -225,6 +255,7 @@ class ConfigPage(ctk.CTkFrame):
         )
         self.btn_delete_user.pack(side="left", padx=12)
 
+
         self.btn_view_info = ctk.CTkButton(
             self.buttons_frame,
             text="Ver Información",
@@ -235,21 +266,38 @@ class ConfigPage(ctk.CTkFrame):
         )
         self.btn_view_info.pack(side="left", padx=12)
 
+
         self._load_user_data()
+
 
     def edit_selected_user(self):
         selected = self.user_tree.selection()
         if not selected:
             messagebox.showwarning("Seleccione un Usuario", "Por favor seleccione un usuario para editar.")
             return
+        
+        # Validar permisos para editar usuario
+        roles_permitidos = ["administrador total", "gerente", "desarrollador"]
+        if self.rol_usuario_logueado not in roles_permitidos:
+            messagebox.showerror("Permiso Denegado", "No tienes permisos para editar usuarios.")
+            return
+        
         user_id = self._get_user_id_from_selection(selected[0])
-        EditUserWindow(self, self.user_management, user_id, self._load_user_data).focus_set()
+        EditUserWindow(self, self.user_management, user_id, self._load_user_data, rol_usuario_logueado=self.rol_usuario_logueado).focus_set()
+
 
     def delete_selected_user(self):
         selected = self.user_tree.selection()
         if not selected:
             messagebox.showwarning("Seleccione un Usuario", "Por favor seleccione un usuario para eliminar.")
             return
+        
+        # Aquí deberías agregar validación similar para permisos de eliminación
+        # roles_permitidos_eliminar = ["administrador total", "gerente", "desarrollador"]
+        # if self.rol_usuario_logueado not in roles_permitidos_eliminar:
+        #     messagebox.showerror("Permiso Denegado", "No tienes permisos para eliminar usuarios.")
+        #     return
+        
         confirm = messagebox.askyesno("Confirmar Eliminación", "¿Está seguro de eliminar este usuario?")
         if confirm:
             user_id = self._get_user_id_from_selection(selected[0])
@@ -259,6 +307,7 @@ class ConfigPage(ctk.CTkFrame):
                 self._load_user_data()
             else:
                 messagebox.showerror("Error", "No se pudo eliminar el usuario.")
+
 
     def view_selected_user_info(self):
         selected = self.user_tree.selection()
@@ -286,12 +335,15 @@ class ConfigPage(ctk.CTkFrame):
         else:
             messagebox.showerror("Error", "No se pudo obtener la información del usuario.")
 
+
     def _get_user_id_from_selection(self, tree_item_id):
         return int(tree_item_id)
+
 
     def _load_user_data(self):
         for item in self.user_tree.get_children():
             self.user_tree.delete(item)
+
 
         usuarios = self.user_management.get_all_users()
         for usuario in usuarios:
@@ -302,9 +354,11 @@ class ConfigPage(ctk.CTkFrame):
                 values=(usuario["username"], usuario["nombre_completo"], usuario["rol"])
             )
 
+
     def _create_tab_general(self):
         self.tab_general = ctk.CTkFrame(self.content_frame, fg_color="#232150")
         self.tab_general.pack(fill="both", expand=True)
+
 
         label = ctk.CTkLabel(
             self.tab_general,
@@ -314,17 +368,21 @@ class ConfigPage(ctk.CTkFrame):
         )
         label.pack(pady=30)
 
+
     def _show_tab_usuarios(self):
         self.tab_general.pack_forget()
         self.tab_usuarios.pack(fill="both", expand=True)
+
 
     def _show_tab_general(self):
         self.tab_usuarios.pack_forget()
         self.tab_general.pack(fill="both", expand=True)
 
+
     def open_create_user(self):
         def refresh_users():
             self._load_user_data()
+
 
         # Pasar el rol del usuario logueado para validación
         create_window = CreateUserWindow(
@@ -335,10 +393,12 @@ class ConfigPage(ctk.CTkFrame):
         )
         create_window.focus_set()
 
+
     def open_finance_manager(self):
-        from src.currency.currency_page import CurrencyManager  # Import dentro para evitar ciclos
+        from src.currency.currency_page import CurrencyManager # Import dentro para evitar ciclos
         finanzas_window = CurrencyManager()
         finanzas_window.focus_set()
+
 
     def _handle_close(self):
         if callable(self.on_close):

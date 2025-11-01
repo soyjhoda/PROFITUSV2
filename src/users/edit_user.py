@@ -2,15 +2,23 @@ import os
 import shutil
 import customtkinter as ctk
 from tkinter import messagebox, filedialog
-from ..config.settings import USER_IMAGES_DIR  # Importar ruta fija
+from ..config.settings import USER_IMAGES_DIR # Importar ruta fija
+
 
 class EditUserWindow(ctk.CTkToplevel):
-    def __init__(self, master, user_management, user_id, refresh_callback):
+    def __init__(self, master, user_management, user_id, refresh_callback, rol_usuario_logueado=None):
         super().__init__(master)
         self.user_management = user_management
         self.user_id = user_id
         self.refresh_callback = refresh_callback
         self.user_image_path = None
+        self.rol_usuario_logueado = rol_usuario_logueado
+
+        roles_permitidos = ["administrador total", "gerente", "desarrollador"]
+        if self.rol_usuario_logueado not in roles_permitidos:
+            messagebox.showerror("Permiso Denegado", "No tienes permisos para editar usuarios.")
+            self.destroy()
+            return
 
         self.title("Editar Usuario")
         self.geometry("600x520")
@@ -25,6 +33,7 @@ class EditUserWindow(ctk.CTkToplevel):
             return
 
         self._create_widgets()
+
 
     def _create_widgets(self):
         ctk.CTkLabel(self, text="Editar Usuario",
@@ -57,6 +66,7 @@ class EditUserWindow(ctk.CTkToplevel):
                                             command=self._open_change_password)
         btn_change_password.pack(pady=(0, 20), padx=40, fill="x")
 
+
     def _add_labeled_entry(self, label, default_text=""):
         ctk.CTkLabel(self.frame_form, text=label).pack(anchor="w", padx=10, pady=(6, 0))
         entry = ctk.CTkEntry(self.frame_form, font=ctk.CTkFont(size=14))
@@ -64,12 +74,14 @@ class EditUserWindow(ctk.CTkToplevel):
         entry.insert(0, default_text)
         return entry
 
+
     def _select_image(self):
         path = filedialog.askopenfilename(title="Seleccione una imagen",
                                           filetypes=[("Imágenes", "*.png *.jpg *.jpeg *.bmp *.gif")])
         if path:
             self.user_image_path = path
             messagebox.showinfo("Imagen Seleccionada", os.path.basename(path))
+
 
     def _save_changes(self):
         new_name = self.entry_name.get().strip()
@@ -99,6 +111,7 @@ class EditUserWindow(ctk.CTkToplevel):
             self.destroy()
         else:
             messagebox.showerror("Error", "Error guardando los datos del usuario.")
+
 
     def _open_change_password(self):
         from .change_password import ChangePasswordWindow
