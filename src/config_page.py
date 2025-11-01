@@ -275,13 +275,13 @@ class ConfigPage(ctk.CTkFrame):
         if not selected:
             messagebox.showwarning("Seleccione un Usuario", "Por favor seleccione un usuario para editar.")
             return
-        
+
         # Validar permisos para editar usuario
         roles_permitidos = ["administrador total", "gerente", "desarrollador"]
         if self.rol_usuario_logueado not in roles_permitidos:
             messagebox.showerror("Permiso Denegado", "No tienes permisos para editar usuarios.")
             return
-        
+
         user_id = self._get_user_id_from_selection(selected[0])
         EditUserWindow(self, self.user_management, user_id, self._load_user_data, rol_usuario_logueado=self.rol_usuario_logueado).focus_set()
 
@@ -291,13 +291,13 @@ class ConfigPage(ctk.CTkFrame):
         if not selected:
             messagebox.showwarning("Seleccione un Usuario", "Por favor seleccione un usuario para eliminar.")
             return
-        
-        # Aquí deberías agregar validación similar para permisos de eliminación
-        # roles_permitidos_eliminar = ["administrador total", "gerente", "desarrollador"]
-        # if self.rol_usuario_logueado not in roles_permitidos_eliminar:
-        #     messagebox.showerror("Permiso Denegado", "No tienes permisos para eliminar usuarios.")
-        #     return
-        
+
+        # Validar permisos para eliminar usuario
+        roles_permitidos_eliminar = ["administrador total", "desarrollador"]  # Solo estos roles pueden eliminar usuarios
+        if self.rol_usuario_logueado not in roles_permitidos_eliminar:
+            messagebox.showerror("Permiso Denegado", "No tienes permisos para eliminar usuarios.")
+            return
+
         confirm = messagebox.askyesno("Confirmar Eliminación", "¿Está seguro de eliminar este usuario?")
         if confirm:
             user_id = self._get_user_id_from_selection(selected[0])
