@@ -1,3 +1,5 @@
+from src.security.authorization import tiene_permiso  # ← [Mejora de seguridad de roles]
+
 class UserManagement:
     def __init__(self, db):
         self.db = db
@@ -9,7 +11,13 @@ class UserManagement:
     def fetch_one(self, query, params=()):
         return self.db.fetch_one(query, params)
 
-    def create_user(self, username, password_hashed, nombre_completo, rol, foto_path=None):
+    def create_user(self, username, password_hashed, nombre_completo, rol, foto_path=None, creador_rol=None):
+        # [Mejora de seguridad] Validar permiso de crear usuario según el rol del usuario que ejecuta la acción
+        # Esta mejora exige pasar el rol del usuario actual como 'creador_rol' (adaptar llamada desde interfaz)
+        if creador_rol is not None and not tiene_permiso(creador_rol, "crear_usuario"):
+            # Si no tiene permiso, no se crea el usuario
+            return False
+
         try:
             self.db.execute(
                 "INSERT INTO usuarios (username, password, nombre_completo, rol, foto_path) VALUES (?, ?, ?, ?, ?)",

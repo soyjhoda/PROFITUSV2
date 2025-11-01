@@ -4,12 +4,16 @@ import customtkinter as ctk
 from tkinter import messagebox, filedialog
 from ..config.settings import USER_IMAGES_DIR  # Importar ruta fija
 
+# AGREGADO: Importa la función de roles
+from src.security.authorization import tiene_permiso
+
 class CreateUserWindow(ctk.CTkToplevel):
-    def __init__(self, master, user_management, refresh_callback):
+    def __init__(self, master, user_management, refresh_callback, user_actual_rol=None):
         super().__init__(master)
         self.user_management = user_management
         self.refresh_callback = refresh_callback
         self.user_image_path = None
+        self.user_actual_rol = user_actual_rol  # AGREGADO: recibir el rol del usuario actual
 
         self.title("Crear Nuevo Usuario")
         self.geometry("600x520")
@@ -33,7 +37,7 @@ class CreateUserWindow(ctk.CTkToplevel):
 
         ctk.CTkLabel(self.frame_form, text="Rol Asignado:").pack(anchor="w", padx=10, pady=(12, 0))
         self.combobox_role = ctk.CTkComboBox(self.frame_form,
-                                             values=["Vendedor", "Gerente", "Administrador Total", "Creador/Programador"],
+                                             values=["Vendedor", "Gerente", "administrador total", "desarrollador"],
                                              state="readonly")
         self.combobox_role.set("Vendedor")
         self.combobox_role.pack(fill="x", padx=10, pady=(0, 15))
@@ -68,6 +72,11 @@ class CreateUserWindow(ctk.CTkToplevel):
         password = self.entry_password.get()
         nombre_completo = self.entry_name.get().strip()
         rol = self.combobox_role.get()
+
+        # AGREGADO: Validación de PERMISO SEGÚN ROL
+        if not tiene_permiso(self.user_actual_rol, "crear_usuario"):
+            messagebox.showerror("Restricción de permisos", "No tienes permisos para crear usuarios.")
+            return
 
         if not (username and password and nombre_completo and rol):
             messagebox.showwarning("Datos Faltantes", "Todos los campos son obligatorios excepto la foto.")

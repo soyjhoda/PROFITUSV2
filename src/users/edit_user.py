@@ -40,7 +40,7 @@ class EditUserWindow(ctk.CTkToplevel):
 
         ctk.CTkLabel(self.frame_form, text="Rol Asignado:").pack(anchor="w", padx=10, pady=(12, 0))
         self.combobox_role = ctk.CTkComboBox(self.frame_form,
-                                             values=["Vendedor", "Gerente", "Administrador Total", "Creador/Programador"],
+                                             values=["Vendedor", "Gerente", "administrador total", "desarrollador"],
                                              state="readonly")
         self.combobox_role.set(self.user_data["rol"])
         self.combobox_role.pack(fill="x", padx=10, pady=(0, 15))

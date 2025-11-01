@@ -14,8 +14,9 @@ from src.ui.theme import (
     TREE_FONT, TREE_FONT_HEADER, TREE_BG_COLOR, TREE_HEADER_BG_COLOR, TREE_HEADER_FG_COLOR, TREE_FG_COLOR, TREE_ROW_HEIGHT, TREE_SELECTED_COLOR
 )
 
+
 class ConfigPage(ctk.CTkFrame):
-    def __init__(self, master, user_management, on_close=None):
+    def __init__(self, master, user_management, on_close=None, rol_usuario_logueado=None):
         super().__init__(master)
 
         if user_management is None:
@@ -24,6 +25,9 @@ class ConfigPage(ctk.CTkFrame):
 
         self.user_management = user_management
         self.on_close = on_close
+
+        # Guardar el rol recibido para validar permisos
+        self.rol_usuario_logueado = rol_usuario_logueado
 
         self.configure(fg_color=BACKGROUND_COLOR)
         self.pack(fill="both", expand=True)
@@ -283,8 +287,6 @@ class ConfigPage(ctk.CTkFrame):
             messagebox.showerror("Error", "No se pudo obtener la información del usuario.")
 
     def _get_user_id_from_selection(self, tree_item_id):
-        # Esto asume que el id real del usuario se guarda en el 'iid' del item, o que puedes obtenerlo del user_tree
-        # Si en tu insert usas como iid el id real del usuario, devuelve ese valor
         return int(tree_item_id)
 
     def _load_user_data(self):
@@ -324,7 +326,13 @@ class ConfigPage(ctk.CTkFrame):
         def refresh_users():
             self._load_user_data()
 
-        create_window = CreateUserWindow(self.master, self.user_management, refresh_callback=refresh_users)
+        # Pasar el rol del usuario logueado para validación
+        create_window = CreateUserWindow(
+            self.master,
+            self.user_management,
+            refresh_callback=refresh_users,
+            user_actual_rol=self.rol_usuario_logueado
+        )
         create_window.focus_set()
 
     def open_finance_manager(self):

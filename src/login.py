@@ -5,7 +5,6 @@ from customtkinter import CTkImage, CTkLabel
 import os
 import hashlib
 
-
 class LoginFrame(ctk.CTkFrame):
     def __init__(self, parent, user_management, on_login_success):
         super().__init__(parent)
@@ -13,19 +12,16 @@ class LoginFrame(ctk.CTkFrame):
         self.user_management = user_management
         self.on_login_success = on_login_success
 
-        self.pack(fill='both', expand=True)  # Ocupa toda ventana padre
-
-        # Frame pequeño centrado para formulario
+        self.pack(fill='both', expand=True)
         self.form_frame = ctk.CTkFrame(self, width=400, height=400, corner_radius=15)
         self.form_frame.place(relx=0.5, rely=0.5, anchor="center")
 
         self._create_widgets()
         self._place_focus()
 
-        # Etiqueta fija con crédito abajo centrada
         self.credit_label = ctk.CTkLabel(self.parent,
-                                        text="ProfitUs: Creado por Jhoda Studios.",
-                                        font=ctk.CTkFont(size=14))
+                                         text="ProfitUs: Creado por Jhoda Studios.",
+                                         font=ctk.CTkFont(size=14))
         self.credit_label.place(relx=0.5, rely=0.95, anchor="center")
 
     def _create_widgets(self):
@@ -48,7 +44,7 @@ class LoginFrame(ctk.CTkFrame):
             self.logo_label.pack(pady=20)
         else:
             self.logo_label = CTkLabel(self.form_frame, text="Bienvenido",
-                                    font=ctk.CTkFont(size=28, weight="bold"), pady=20)
+                                       font=ctk.CTkFont(size=28, weight="bold"), pady=20)
             self.logo_label.pack()
 
         self.username_entry = ctk.CTkEntry(self.form_frame, placeholder_text="Nombre de usuario", width=320)
@@ -79,6 +75,7 @@ class LoginFrame(ctk.CTkFrame):
 
         if user and user["password"] == password_hash:
             messagebox.showinfo("Éxito", f"Bienvenido, {user['nombre_completo']}!")
+            # MEJORA: Asegúrate que el callback reciba el usuario completo (incluyendo el 'rol')
             self.on_login_success(user)
         else:
             messagebox.showerror("Falló ingreso", "Usuario o contraseña incorrectos.")

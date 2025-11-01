@@ -15,7 +15,9 @@ from src.ui.theme import (
 )
 from src.currency import currency_model as cm
 
+
 NOMBRE_NEGOCIO_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "assets", "logo-cliente", "nombre_negocio.txt")
+
 
 def make_circle_image(image_path, size=(40, 40)):
     im = Image.open(image_path).resize(size).convert("RGBA")
@@ -26,6 +28,7 @@ def make_circle_image(image_path, size=(40, 40)):
     mask = mask.resize(im.size, Image.LANCZOS)
     im.putalpha(mask)
     return im
+
 
 class Dashboard(ctk.CTkFrame):
     def __init__(self, master, user_data, user_management=None, logo_cliente_path="", on_logout=None):
@@ -52,27 +55,34 @@ class Dashboard(ctk.CTkFrame):
         self._create_main_panel()
         self.programar_refresco_tasa()  # Refresco automático
 
+
     def cerrar_sesion(self):
         if self.on_logout:
             self.on_logout()
         self.destroy()
 
+
     def mostrar_configuracion(self):
         if self.main_panel is not None:
             self.main_panel.destroy()
-        self.main_panel = ConfigPage(self, user_management=self.user_management, on_close=self._on_salir_config)
+        # Accede al rol usando índice porque user_data es sqlite3.Row
+        rol_usuario = self.user_data["rol"].lower() if self.user_data and "rol" in self.user_data.keys() else ""
+        self.main_panel = ConfigPage(self, user_management=self.user_management, rol_usuario_logueado=rol_usuario, on_close=self._on_salir_config)
         self.main_panel.place(x=190, y=55, relwidth=1.0, relheight=1.0, anchor='nw')
         self.main_panel.place_configure(relwidth=1.0, relheight=1.0)
+
 
     def _on_salir_config(self):
         self._create_main_panel()
         self.refrescar_tasa_bcv()
+
 
     def _cargar_nombre_negocio(self):
         if os.path.exists(NOMBRE_NEGOCIO_PATH):
             with open(NOMBRE_NEGOCIO_PATH, "r", encoding="utf-8") as f:
                 return f.read().strip() or "Mi Negocio"
         return "Mi Negocio"
+
 
     def _guardar_nombre_negocio(self):
         with open(NOMBRE_NEGOCIO_PATH, "w", encoding="utf-8") as f:
@@ -83,12 +93,14 @@ class Dashboard(ctk.CTkFrame):
         self.btn_guardar_nombre.pack_forget()
         self.label_nombre_negocio.pack(side="left", padx=(0, 10))
 
+
     def _edit_nombre_negocio(self, event):
         self.label_nombre_negocio.pack_forget()
         self.entry_nombre_negocio.delete(0, "end")
         self.entry_nombre_negocio.insert(0, self.nombre_negocio)
         self.entry_nombre_negocio.pack(side="left", padx=(0, 10))
         self.btn_guardar_nombre.pack(side="left")
+
 
     def _create_topbar(self):
         if self.topbar_frame is not None:
@@ -106,9 +118,11 @@ class Dashboard(ctk.CTkFrame):
         else:
             logo_label = None
 
+
         # Nombre negocio a la izquierda
         nombre_negocio_frame = ctk.CTkFrame(bar, fg_color=TOPBAR_COLOR)
         nombre_negocio_frame.pack(side="left", padx=(0, 20), pady=2)
+
 
         self.label_nombre_negocio = ctk.CTkLabel(
             nombre_negocio_frame,
@@ -118,6 +132,7 @@ class Dashboard(ctk.CTkFrame):
         )
         self.label_nombre_negocio.pack(side="left")
         self.label_nombre_negocio.bind("<Double-1>", self._edit_nombre_negocio)
+
 
         self.entry_nombre_negocio = ctk.CTkEntry(
             nombre_negocio_frame,
@@ -132,9 +147,11 @@ class Dashboard(ctk.CTkFrame):
             **BUTTON_STYLE_DEFAULT
         )
 
+
         # Avatar y nombre de usuario a la derecha
         nombre_frame = ctk.CTkFrame(bar, fg_color=TOPBAR_COLOR)
         nombre_frame.pack(side="right", padx=(0, 15), pady=2)
+
 
         user_image_path = self.user_data["foto_path"] if self.user_data and "foto_path" in self.user_data.keys() else None
         try:
@@ -148,10 +165,12 @@ class Dashboard(ctk.CTkFrame):
             avatar_label = ctk.CTkLabel(nombre_frame, text="👤", font=FONT_BOLD_SMALL, fg_color=TOPBAR_COLOR)
         avatar_label.pack(side="left", padx=(0, 8))
 
+
         try:
             user_name = self.user_data["nombre_completo"]
         except (KeyError, TypeError):
             user_name = "Usuario"
+
 
         user_label = ctk.CTkLabel(
             nombre_frame,
@@ -161,11 +180,13 @@ class Dashboard(ctk.CTkFrame):
         )
         user_label.pack(side="left")
 
+
     def _create_sidebar(self):
         if self.sidebar is not None:
             self.sidebar.destroy()
         self.sidebar = ctk.CTkFrame(self, fg_color=SIDEBAR_COLOR, width=190)
         self.sidebar.place(x=0, y=55, relheight=1.0, anchor="nw")
+
 
         # --- BLOQUE TASA BCV (arriba sobre botones) ---
         tasa = cm.get_tasa("BCV")
@@ -183,6 +204,7 @@ class Dashboard(ctk.CTkFrame):
         )
         self.tasa_label.place(x=10, y=16)
 
+
         self.menu_toggle = ctk.CTkButton(
             self.sidebar,
             text="≡",
@@ -193,12 +215,15 @@ class Dashboard(ctk.CTkFrame):
         )
         self.menu_toggle.place(x=142, y=12 + 40)  # Mueve el botón debajo de la tasa
 
+
         self.menu_buttons = []
         menus = [("HOME", "🏠"), ("POS", "🛒"), ("INVENTARIO", "📦"),
                  ("COMPRAS", "🧾"), ("GESTION", "📋")]
 
+
         y_start = 58 + 34  # baja el bloque de botones
         spacing = 54
+
 
         for i, (txt, icon) in enumerate(menus):
             btn = ctk.CTkButton(
@@ -216,7 +241,9 @@ class Dashboard(ctk.CTkFrame):
             btn.place(x=20, y=y_start + i * spacing)
             self.menu_buttons.append(btn)
 
+
         self._activate_menu("HOME")
+
 
         account_text_y = y_start + len(menus) * spacing + 110
         ctk.CTkLabel(
@@ -227,6 +254,7 @@ class Dashboard(ctk.CTkFrame):
             text_color="#4F5D7A",
             underline=True
         ).place(x=29, y=account_text_y)
+
 
         acciones = [("Perfil", "👤"), ("Configuración", "⚙️"), ("Cambiar logo", "🖼️"), ("Cerrar Sesión", "🔒")]
         y_acc = account_text_y + 50
@@ -253,11 +281,13 @@ class Dashboard(ctk.CTkFrame):
             y_acc += 39
             self.acciones_buttons.append(b)
 
+
         if os.path.exists(LOGO_PROFITUS_PATH):
             profitus_img = Image.open(LOGO_PROFITUS_PATH).resize((150, 150))
             self.profitus_logo = ctk.CTkImage(profitus_img, size=(150, 150))
             logo_label = ctk.CTkLabel(self.sidebar, image=self.profitus_logo, text="", fg_color=SIDEBAR_COLOR)
             logo_label.place(relx=0.5, rely=1.0, anchor="s", y=-120)
+
 
     def refrescar_tasa_bcv(self):
         tasa = cm.get_tasa("BCV")
@@ -265,9 +295,11 @@ class Dashboard(ctk.CTkFrame):
         if self.tasa_label:
             self.tasa_label.configure(text=txt_tasa)
 
+
     def programar_refresco_tasa(self):
         self.refrescar_tasa_bcv()
         self.after(3000, self.programar_refresco_tasa)  # Refresco cada 3 segundos
+
 
     def _toggle_sidebar(self):
         new_width = 52 if self.menu_expanded else 190
@@ -287,6 +319,7 @@ class Dashboard(ctk.CTkFrame):
                 btn.configure(text=f"{icon} {txt}")
         self.menu_toggle.place(x=(5 if not self.menu_expanded else 142), y=52)
 
+
     def _activate_menu(self, menu_name):
         if self.main_panel is not None and isinstance(self.main_panel, ConfigPage):
             self.main_panel.destroy()
@@ -296,6 +329,7 @@ class Dashboard(ctk.CTkFrame):
                 btn.configure(fg_color=SIDEBAR_BUTTON_HOVER)
             else:
                 btn.configure(fg_color=SIDEBAR_BUTTON_DEFAULT)
+
 
     def _create_main_panel(self):
         if hasattr(self, "main_panel") and self.main_panel is not None:
@@ -343,6 +377,7 @@ class Dashboard(ctk.CTkFrame):
             )
             self.logo_cliente_label.pack(pady=40)
             self.logo_cliente_label.bind("<Button-1>", lambda e: self.seleccionar_logo())
+
 
     def seleccionar_logo(self):
         ruta = filedialog.askopenfilename(
